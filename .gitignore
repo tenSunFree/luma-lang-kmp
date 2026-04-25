@@ -1,19 +1,114 @@
-*.iml
-.kotlin
-.gradle
+# ===== Gradle / Kotlin =====
+.gradle/
+.kotlin/
 **/build/
-xcuserdata
 !src/**/build/
+
+# Gradle wrapper should be committed
+!gradle/wrapper/gradle-wrapper.jar
+
+# ===== IDE / Editors =====
+.idea/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+
+# ===== Android =====
 local.properties
-.idea
-.DS_Store
-captures
-.externalNativeBuild
-.cxx
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.ap_
+*.aab
+*.aar
+*.dex
+*.class
+
+# ===== iOS / Xcode =====
+xcuserdata/
+DerivedData/
+Pods/
+*.xcuserstate
+*.xcscmblueprint
+
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
 !*.xcodeproj/project.xcworkspace/
+!*.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+
+*.xcworkspace/*
 !*.xcworkspace/contents.xcworkspacedata
+
 **/xcshareddata/WorkspaceSettings.xcsettings
+
+# App projects usually commit Podfile.lock.
+# If this is a reusable library template and you do not want to lock Pods, uncomment:
+# Podfile.lock
+
+# ===== Swift Package Manager =====
+.swiftpm/
+.build/
+
+# ===== macOS / OS =====
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# ===== Node / Docs / Tooling =====
 node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+site/
+.venv/
+venv/
+__pycache__/
+
+# ===== AI Tools / Agents =====
+.cursor/
+.claude/
+.codex/
+.windsurf/
+.replit/
+.gemini/
+.aider*
+aider.chat.history.md
+aider.input.history
+aider.conf.yml
+.github/copilot-instructions.md
+zensical.toml
+
+# ===== Secrets / Keys =====
+.env
+.env.*
+*.env
+!.env.example
+
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+*.cer
+secrets.properties
+
+google-services.json
+GoogleService-Info.plist
+
+openai.properties
+anthropic.properties
+gemini.properties
+
+**/secrets/
+**/*secret*
+**/*api_key*
+**/*apikey*
+
+# ===== Logs =====
+*.log
