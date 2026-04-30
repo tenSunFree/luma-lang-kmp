@@ -1,20 +1,6 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
 package com.sun.kmpstartertemplaterefined.core.navigation
 
+import com.sun.kmpstartertemplaterefined.core.ui.screens.LoginScreen
 import com.sun.kmpstartertemplaterefined.core.ui.screens.WelcomeScreen
 import com.sun.kmpstartertemplaterefined.feature_core_presentation.screens.OnboardingV1Screen
 import com.sun.kmpstartertemplaterefined.feature_core_presentation.screens.SplashScreen
@@ -29,8 +15,6 @@ import org.koin.dsl.navigation3.navigation
 @OptIn(KoinExperimentalAPI::class)
 val navigationModule = module {
     includes(navigationCoreModule)
-
-
     navigation<StarterScreens.Welcome> { route ->
         val navigator = StarterNavigator.getCurrent()
         WelcomeScreen(
@@ -41,13 +25,12 @@ val navigationModule = module {
             }
         )
     }
-
     navigation<StarterScreens.Splash> { route ->
         val navigator = StarterNavigator.getCurrent()
         SplashScreen(
             onNavigate = {
                 navigator.popAndNavigate(
-                    route = StarterScreens.Welcome
+                    route = StarterScreens.Login
                 )
             },
             onNavigateToOnboarding = {
@@ -67,7 +50,6 @@ val navigationModule = module {
             }
         )
     }
-
     navigation<StarterScreens.Purchases> { route ->
         val navigator = StarterNavigator.getCurrent()
         PurchasesScreen(
@@ -76,24 +58,12 @@ val navigationModule = module {
             }
         )
     }
-
+    navigation<StarterScreens.Login> { route ->
+        val navigator = StarterNavigator.getCurrent()
+        LoginScreen(
+            onGetStartedClick = {
+                navigator.navigateTo(route = StarterScreens.Purchases)
+            }
+        )
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

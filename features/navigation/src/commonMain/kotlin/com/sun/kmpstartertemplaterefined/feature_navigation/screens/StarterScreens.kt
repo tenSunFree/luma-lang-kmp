@@ -18,9 +18,6 @@ package com.sun.kmpstartertemplaterefined.feature_navigation.screens
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
-
-// define your screens inside screens package
-
 @Serializable
 sealed class StarterScreens : NavKey {
     @Serializable
@@ -31,6 +28,9 @@ sealed class StarterScreens : NavKey {
 
     @Serializable
     data object Onboarding : StarterScreens()
+
+    @Serializable
+    data object Login : StarterScreens()
 
     @Serializable
     data object Purchases : StarterScreens()

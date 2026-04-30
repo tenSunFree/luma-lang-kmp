@@ -1,18 +1,3 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
 package com.sun.kmpstartertemplaterefined.feature_navigation
 
 import androidx.compose.runtime.Composable
@@ -31,6 +16,7 @@ fun rememberStarterBackStack(vararg initialScreens: NavKey): NavBackStack<NavKey
         subclass(StarterScreens.Purchases::class)
         subclass(StarterScreens.Onboarding::class)
         subclass(StarterScreens.Splash::class)
+        subclass(StarterScreens.Login::class)
         // add other screens here
     }
     return backstack
