@@ -9,9 +9,6 @@ If you're interested in Kotlin Multiplatform (Compose Multiplatform) with Clean 
 Kmp-Starter-Template  
 https://github.com/DevAtrii/Kmp-Starter-Template
 
-FUNDAY英語學院  
-https://play.google.com/store/apps/details?id=com.funday.newfunday&hl=zh_TW
-
 This project is for learning and technical practice.
 
 ---
@@ -19,7 +16,10 @@ This project is for learning and technical practice.
 ## Preview
 
 <p align="left">
-  <img src="https://i.postimg.cc/bJ8zqPzY/Screenshot-20260501-002627.png" width="200"/>
+  <img src="https://i.postimg.cc/yxdwSqY7/Screenshot-20260503-223226.png" width="160"/>
+  <img src="https://i.postimg.cc/zvB9RmXN/Screenshot-20260503-223231.png" width="160"/>
+  <img src="https://i.postimg.cc/0jQLJg5T/Screenshot-20260503-223240.png" width="160"/>
+  <img src="https://i.postimg.cc/5y0ZFcN1/Screenshot-20260503-223243.png" width="160"/>
 </p> 
 
 ---
