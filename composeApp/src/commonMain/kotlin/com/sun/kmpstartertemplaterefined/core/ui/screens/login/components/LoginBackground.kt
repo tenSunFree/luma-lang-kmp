@@ -1,4 +1,4 @@
-package com.sun.kmpstartertemplaterefined.core.ui.components.login
+package com.sun.kmpstartertemplaterefined.core.ui.screens.login.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

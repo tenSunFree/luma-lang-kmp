@@ -27,14 +27,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sun.kmpstartertemplaterefined.core.ui.components.login.LumaLangBlue
-import com.sun.kmpstartertemplaterefined.core.ui.components.login.LumaLangLoginBackground
-import com.sun.kmpstartertemplaterefined.core.ui.components.login.LumaLangPink
-import com.sun.kmpstartertemplaterefined.core.ui.components.login.LoginCard
-import com.sun.kmpstartertemplaterefined.core.ui.components.login.LoginMode
-import com.sun.kmpstartertemplaterefined.core.ui.components.login.LoginTopBar
-import com.sun.kmpstartertemplaterefined.core.ui.components.login.RegisterCard
-import com.sun.kmpstartertemplaterefined.core.ui.components.login.SwitchLoginModeButton
+import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.LumaLangBlue
+import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.LumaLangLoginBackground
+import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.LumaLangPink
+import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.LoginCard
+import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.LoginMode
+import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.LoginTopBar
+import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.RegisterCard
+import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.SwitchLoginModeButton
 
 @Composable
 fun LoginScreen(
