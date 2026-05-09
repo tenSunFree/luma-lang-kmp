@@ -21,20 +21,17 @@ fun authDataModule(authConfig: AuthConfig) = module {
     single(named("authHttpClient")) {
         HttpClient {
             expectSuccess = true
-
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true
                     explicitNulls = false
                 })
             }
-
             install(HttpTimeout) {
                 requestTimeoutMillis = 15_000
                 connectTimeoutMillis = 15_000
                 socketTimeoutMillis = 15_000
             }
-
             install(Logging) {
                 logger = HttpLogger
                 level = LogLevel.BODY

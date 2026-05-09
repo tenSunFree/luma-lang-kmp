@@ -1,18 +1,3 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
 package com.sun.kmpstartertemplaterefined.androidapp
 
 import android.app.Application
@@ -29,6 +14,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         initKmpApp(
+            authBaseUrl = BuildConfig.AUTH_BASE_URL,
             koinConfig = {
                 androidLogger()
                 androidContext(this@MyApplication)

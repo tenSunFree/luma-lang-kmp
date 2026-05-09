@@ -1,18 +1,3 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
 package com.sun.kmpstartertemplaterefined.core
 
 import com.sun.kmpstartertemplaterefined.core.di.initKoin
@@ -26,7 +11,6 @@ import kotlinx.coroutines.launch
 import org.koin.dsl.KoinAppDeclaration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
-
 
 /**
  * The global initialization entry point for the KMP application.
@@ -44,11 +28,12 @@ import kotlin.time.Duration.Companion.seconds
  * the Android Context or iOS-specific modules).
  */
 fun initKmpApp(
+    authBaseUrl: String = "http://10.0.2.2:8080/api/v1",
     koinConfig: KoinAppDeclaration? = null,
 ) {
     // 1. Dependency Injection Setup
     // Starts Koin. This must happen before any 'inject()' or 'get()' calls.
-    initKoin(config = koinConfig)
+    initKoin(authBaseUrl = authBaseUrl, config = koinConfig)
 
     // 2. Core SDK Configuration
     // Sets up the fundamental API keys used by the underlying library modules.
