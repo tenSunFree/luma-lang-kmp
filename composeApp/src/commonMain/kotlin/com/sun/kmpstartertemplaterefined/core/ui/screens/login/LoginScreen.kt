@@ -60,8 +60,9 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     LaunchedEffect(registerState.isSuccess) {
         if (registerState.isSuccess) {
-            overlayState = LoginOverlayState.None
-            onRegisterSuccess()
+            overlayState = LoginOverlayState.Login
+            loginMode = LoginMode.Normal
+            registerViewModel.reset()
         }
     }
     LaunchedEffect(registerState.errorMessage) {
@@ -112,11 +113,13 @@ fun LoginScreen(
                         )
                     }
                 }
+
                 LoginOverlayState.Register -> {
                     RegisterCard(
                         modifier = Modifier
                             .align(Alignment.Center)
                             .fillMaxWidth(),
+                        // Form fields
                         email = registerState.email,
                         username = registerState.username,
                         password = registerState.password,
@@ -124,7 +127,12 @@ fun LoginScreen(
                         phone = registerState.phone,
                         fullName = registerState.fullName,
                         selectedGender = registerState.gender,
+                        // OTP
+                        otpCode = registerState.otpCode,
+                        step = registerState.step,
+                        // Shared
                         isLoading = registerState.isLoading,
+                        // Form callbacks
                         onEmailChange = { registerViewModel.onAction(RegisterAction.EmailChanged(it)) },
                         onUsernameChange = {
                             registerViewModel.onAction(
@@ -156,6 +164,17 @@ fun LoginScreen(
                                 )
                             )
                         },
+                        // OTP callbacks
+                        onOtpCodeChange = {
+                            registerViewModel.onAction(
+                                RegisterAction.OtpCodeChanged(
+                                    it
+                                )
+                            )
+                        },
+                        onVerifyOtpClick = { registerViewModel.onAction(RegisterAction.VerifyOtpClicked) },
+                        onResendOtpClick = { registerViewModel.onAction(RegisterAction.ResendOtpClicked) },
+                        // shared callbacks
                         onCloseClick = { overlayState = LoginOverlayState.None },
                         onSubmitClick = { registerViewModel.onAction(RegisterAction.SubmitClicked) },
                     )
