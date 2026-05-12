@@ -39,6 +39,8 @@ import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.LoginM
 import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.LoginTopBar
 import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.RegisterCard
 import com.sun.kmpstartertemplaterefined.core.ui.screens.login.components.SwitchLoginModeButton
+import com.sun.kmpstartertemplaterefined.feature_auth_presentation.LoginAction
+import com.sun.kmpstartertemplaterefined.feature_auth_presentation.LoginViewModel
 import com.sun.kmpstartertemplaterefined.feature_auth_presentation.RegisterAction
 import com.sun.kmpstartertemplaterefined.feature_auth_presentation.RegisterViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -46,18 +48,28 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun LoginScreen(
     onGetStartedClick: () -> Unit,
-    onRegisterSuccess: () -> Unit = {},
+    loginViewModel: LoginViewModel = koinViewModel(),
     registerViewModel: RegisterViewModel = koinViewModel(),
 ) {
+    val loginState by loginViewModel.state.collectAsState()   // ← 新增
     val registerState by registerViewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var overlayState by remember { mutableStateOf(LoginOverlayState.None) }
     var loginMode by remember { mutableStateOf(LoginMode.Normal) }
     var companyNo by remember { mutableStateOf("") }
-    var account by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
     var rememberPassword by remember { mutableStateOf(false) }
-    var passwordVisible by remember { mutableStateOf(false) }
+    // Login successful → Redirect
+    LaunchedEffect(loginState.isSuccess) {
+        if (loginState.isSuccess) onGetStartedClick()
+    }
+    // Login error → Snackbar
+    LaunchedEffect(loginState.errorMessage) {
+        loginState.errorMessage?.let { msg ->
+            snackbarHostState.showSnackbar(msg)
+            loginViewModel.onAction(LoginAction.ErrorShown)
+        }
+    }
+    // Registration successful → Switch back to login page
     LaunchedEffect(registerState.isSuccess) {
         if (registerState.isSuccess) {
             overlayState = LoginOverlayState.Login
@@ -106,11 +118,7 @@ fun LoginScreen(
                             contentColor = Color.White,
                         ),
                     ) {
-                        Text(
-                            text = "免費加入",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Medium,
-                        )
+                        Text(text = "免費加入", fontSize = 18.sp, fontWeight = FontWeight.Medium)
                     }
                 }
 
@@ -190,16 +198,23 @@ fun LoginScreen(
                         LoginCard(
                             loginMode = loginMode,
                             companyNo = companyNo,
-                            account = account,
-                            password = password,
+                            account = loginState.email,
+                            password = loginState.password,
+                            passwordVisible = loginState.passwordVisible,
+                            isLoading = loginState.isLoading,
                             rememberPassword = rememberPassword,
-                            passwordVisible = passwordVisible,
                             onCompanyNoChange = { companyNo = it },
-                            onAccountChange = { account = it },
-                            onPasswordChange = { password = it },
+                            onAccountChange = { loginViewModel.onAction(LoginAction.EmailChanged(it)) },    // ← 改這裡
+                            onPasswordChange = {
+                                loginViewModel.onAction(
+                                    LoginAction.PasswordChanged(
+                                        it
+                                    )
+                                )
+                            },
                             onRememberPasswordChange = { rememberPassword = it },
-                            onPasswordVisibleChange = { passwordVisible = it },
-                            onLoginClick = onGetStartedClick,
+                            onPasswordVisibleChange = { loginViewModel.onAction(LoginAction.TogglePasswordVisible) }, // ← 改這裡
+                            onLoginClick = { loginViewModel.onAction(LoginAction.SubmitClicked) }, // ← 改這裡！
                             onCloseClick = { overlayState = LoginOverlayState.None },
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -216,7 +231,6 @@ fun LoginScreen(
                 }
             }
         }
-
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter),

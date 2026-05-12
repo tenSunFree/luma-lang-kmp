@@ -1,5 +1,7 @@
 package com.sun.kmpstartertemplaterefined.feature_auth_data.remote
 
+import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.LoginRequestDto
+import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.LoginResponseDto
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.RegisterRequestDto
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.RegisterResponseDto
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.SendOtpRequestDto
@@ -16,6 +18,13 @@ class AuthRemoteDataSourceImpl(
     private val httpClient: HttpClient,
     private val baseUrl: String,
 ) : AuthRemoteDataSource {
+
+    override suspend fun login(request: LoginRequestDto): LoginResponseDto {
+        return httpClient.post("$baseUrl/auth/login") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.body()
+    }
 
     override suspend fun register(request: RegisterRequestDto): RegisterResponseDto {
         return httpClient.post("$baseUrl/auth/register") {

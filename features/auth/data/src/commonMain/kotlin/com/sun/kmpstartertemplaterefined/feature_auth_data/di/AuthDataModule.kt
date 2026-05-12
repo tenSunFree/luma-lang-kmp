@@ -1,6 +1,7 @@
 package com.sun.kmpstartertemplaterefined.feature_auth_data.di
 
 import com.sun.kmpstartertemplaterefined.feature_auth_data.config.AuthConfig
+import com.sun.kmpstartertemplaterefined.feature_auth_data.datastore.TokenDataStore
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.AuthRemoteDataSource
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.AuthRemoteDataSourceImpl
 import com.sun.kmpstartertemplaterefined.feature_auth_data.repositories.AuthRepositoryImpl
@@ -13,6 +14,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -46,7 +48,12 @@ fun authDataModule(authConfig: AuthConfig) = module {
         )
     }
 
+    singleOf(::TokenDataStore)
+
     single<AuthRepository> {
-        AuthRepositoryImpl(remoteDataSource = get())
+        AuthRepositoryImpl(
+            remoteDataSource = get(),
+            tokenDataStore = get(),
+        )
     }
 }

@@ -1,7 +1,9 @@
 package com.sun.kmpstartertemplaterefined.feature_auth_data.mappers
 
+import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.LoginDataDto
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.RegisterRequestDto
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.RegisterResponseDto
+import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.LoginResult
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.RegisterParams
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.RegisterResult
 
@@ -26,3 +28,12 @@ fun RegisterResponseDto.toDomain(): RegisterResult {
         message = message,
     )
 }
+
+fun LoginDataDto.toDomain() = LoginResult(
+    userId = id,
+    username = username,
+    fullName = fullName,
+    email = email,
+    token = token,
+    refreshToken = refreshToken,
+)

@@ -16,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 internal fun LoginCard(
+    isLoading: Boolean = false,
     loginMode: LoginMode,
     companyNo: String,
     account: String,
@@ -148,6 +150,8 @@ internal fun LoginCard(
             // Login button
             Button(
                 onClick = onLoginClick,
+                // Disable during loading to prevent repeated clicks.
+                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -155,9 +159,19 @@ internal fun LoginCard(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = LumaLangPink,
                     contentColor = Color.White,
+                    disabledContainerColor = LumaLangPink.copy(alpha = 0.6f),
+                    disabledContentColor = Color.White,
                 ),
             ) {
-                Text(text = "登入", fontSize = 17.sp, fontWeight = FontWeight.Medium)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(text = "登入", fontSize = 17.sp, fontWeight = FontWeight.Medium)
+                }
             }
         }
     }
