@@ -26,9 +26,11 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.logging)
             implementation(projects.starter.core)
+            implementation(projects.features.core.domain)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.tink.android)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

@@ -1,7 +1,7 @@
 package com.sun.kmpstartertemplaterefined.feature_auth_data.di
 
 import com.sun.kmpstartertemplaterefined.feature_auth_data.config.AuthConfig
-import com.sun.kmpstartertemplaterefined.feature_auth_data.datastore.TokenDataStore
+import com.sun.kmpstartertemplaterefined.feature_auth_data.local.AuthSessionStorage
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.AuthRemoteDataSource
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.AuthRemoteDataSourceImpl
 import com.sun.kmpstartertemplaterefined.feature_auth_data.repositories.AuthRepositoryImpl
@@ -14,9 +14,10 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import com.sun.kmpstartertemplaterefined.feature_auth_data.session.AuthSessionChecker
+import com.sun.kmpstartertemplaterefined.feature_core_domain.session.SessionChecker
 
 fun authDataModule(authConfig: AuthConfig) = module {
 
@@ -24,10 +25,7 @@ fun authDataModule(authConfig: AuthConfig) = module {
         HttpClient {
             expectSuccess = true
             install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                    explicitNulls = false
-                })
+                json(Json { ignoreUnknownKeys = true; explicitNulls = false })
             }
             install(HttpTimeout) {
                 requestTimeoutMillis = 15_000
@@ -41,6 +39,21 @@ fun authDataModule(authConfig: AuthConfig) = module {
         }
     }
 
+    // SecureStorage (Platform implementation injects via expect/actual)
+    includes(secureStoragePlatformModule())
+
+    // JSON (required by AuthSessionStorage)
+    single {
+        Json {
+            ignoreUnknownKeys = true
+            explicitNulls = false
+        }
+    }
+
+    single {
+        AuthSessionStorage(secureStorage = get(), json = get())
+    }
+
     single<AuthRemoteDataSource> {
         AuthRemoteDataSourceImpl(
             httpClient = get(named("authHttpClient")),
@@ -48,12 +61,17 @@ fun authDataModule(authConfig: AuthConfig) = module {
         )
     }
 
-    singleOf(::TokenDataStore)
-
     single<AuthRepository> {
         AuthRepositoryImpl(
             remoteDataSource = get(),
-            tokenDataStore = get(),
+            sessionStorage = get(),
+        )
+    }
+
+    single<SessionChecker> {
+        AuthSessionChecker(
+            sessionStorage = get(),
+            remoteDataSource = get(),
         )
     }
 }

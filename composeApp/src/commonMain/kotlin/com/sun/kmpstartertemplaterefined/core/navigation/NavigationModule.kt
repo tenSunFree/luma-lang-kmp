@@ -1,7 +1,7 @@
 package com.sun.kmpstartertemplaterefined.core.navigation
 
 import com.sun.kmpstartertemplaterefined.core.ui.screens.login.LoginScreen
-import com.sun.kmpstartertemplaterefined.core.ui.screens.main.MainScreen  // ✅ 新增 import
+import com.sun.kmpstartertemplaterefined.core.ui.screens.main.MainScreen
 import com.sun.kmpstartertemplaterefined.core.ui.screens.welcome.WelcomeScreen
 import com.sun.kmpstartertemplaterefined.feature_core_presentation.screens.OnboardingV1Screen
 import com.sun.kmpstartertemplaterefined.feature_core_presentation.screens.SplashScreen
@@ -16,7 +16,6 @@ import org.koin.dsl.navigation3.navigation
 @OptIn(KoinExperimentalAPI::class)
 val navigationModule = module {
     includes(navigationCoreModule)
-
     navigation<StarterScreens.Welcome> { _ ->
         val navigator = StarterNavigator.getCurrent()
         WelcomeScreen(
@@ -27,23 +26,21 @@ val navigationModule = module {
             }
         )
     }
-
     navigation<StarterScreens.Splash> { _ ->
         val navigator = StarterNavigator.getCurrent()
         SplashScreen(
-            onNavigate = {
-                navigator.popAndNavigate(
-                    route = StarterScreens.Login
-                )
+            onNavigateToLogin = {
+                navigator.popAndNavigate(route = StarterScreens.Login)
+            },
+            onNavigateToMain = {
+                // popAllAndNavigate clears the entire backstack; pressing back will not return to Splash/Login.
+                navigator.popAllAndNavigate(route = StarterScreens.Main)
             },
             onNavigateToOnboarding = {
-                navigator.popAndNavigate(
-                    route = StarterScreens.Onboarding
-                )
+                navigator.popAndNavigate(route = StarterScreens.Onboarding)
             }
         )
     }
-
     navigation<StarterScreens.Onboarding> { _ ->
         val navigator = StarterNavigator.getCurrent()
         OnboardingV1Screen(
@@ -54,7 +51,6 @@ val navigationModule = module {
             }
         )
     }
-
     navigation<StarterScreens.Purchases> { _ ->
         val navigator = StarterNavigator.getCurrent()
         PurchasesScreen(
@@ -63,7 +59,6 @@ val navigationModule = module {
             }
         )
     }
-
     // After successful login, navigate to Main and clear the entire backstack
     // to prevent redirection to the login page
     navigation<StarterScreens.Login> { _ ->
@@ -74,7 +69,6 @@ val navigationModule = module {
             }
         )
     }
-
     // Main route
     navigation<StarterScreens.Main> { _ ->
         MainScreen()

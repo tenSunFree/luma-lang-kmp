@@ -1,27 +1,10 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
 package com.sun.kmpstartertemplaterefined.feature_core_presentation.viewmodels
 
 import androidx.lifecycle.viewModelScope
 import com.sun.kmpstartertemplaterefined.feature_core_domain.logics.OnboardingLogics
+import com.sun.kmpstartertemplaterefined.feature_core_domain.session.SessionChecker
 import com.sun.kmpstartertemplaterefined.ui_utils.viewmodels.DummyActions
 import com.sun.kmpstartertemplaterefined.ui_utils.viewmodels.MviViewModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
@@ -30,82 +13,51 @@ import kotlin.random.Random
 internal data class SplashState(
     val isOnboarded: Boolean = false,
     val duration: Long = Random.nextLong(1500, 2500),
-) {
-    init {
-        require(duration > 500L) {
-            "Duration must be greater than 500ms"
-        }
-    }
-}
+)
 
 internal sealed class SplashEvents {
-    data object OnFinish : SplashEvents()
+    data object NavigateToMain : SplashEvents()
+    data object NavigateToLogin : SplashEvents()
+    data object NavigateToOnboarding : SplashEvents()
 }
 
 internal class SplashViewModel(
     private val onboardingLogics: OnboardingLogics,
+    private val sessionChecker: SessionChecker,
 ) : MviViewModel<SplashState, DummyActions, SplashEvents>() {
 
-    companion object {
-        private const val TAG = "SplashViewModel"
-    }
+    override val initialState get() = SplashState()
 
+    override fun onAction(action: DummyActions) {}
 
-    override val initialState: SplashState
-        get() = SplashState()
+    // Remove onStateStart() and use an explicit start() instead
+    private var hasStarted = false
 
-    override fun onAction(action: DummyActions) {
-        // do nothing
-    }
-
-    override fun onStateStart() {
-        checkIfOnboarded()
-        onSplashStarted()
-    }
-
-    private fun onSplashStarted() {
+    fun start() {
+        // Prevent recomposition from triggering repeatedly
+        if (hasStarted) return
+        hasStarted = true
         viewModelScope.launch {
-            delay(_state.value.duration)
-            onSplashFinished()
+            kotlinx.coroutines.delay(_state.value.duration)
+            checkAndNavigate()
         }
     }
 
-    private suspend fun onSplashFinished() {
-        emitEvent(SplashEvents.OnFinish)
-        onboardingLogics.setOnboarded(true) // when using auth set it inside auth when signed in
-    }
-
-    private var checkIfOnboardedJob: Job? = null
-
-    private fun checkIfOnboarded() {
-        checkIfOnboardedJob?.cancel()
-        checkIfOnboardedJob = viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    isOnboarded = onboardingLogics.checkIsOnboarded()
-                )
-            }
+    private suspend fun checkAndNavigate() {
+        if (!onboardingLogics.checkIsOnboarded()) {
+            emitEvent(SplashEvents.NavigateToOnboarding)
+            return
+        }
+        if (!sessionChecker.isLoggedIn()) {
+            emitEvent(SplashEvents.NavigateToLogin)
+            return
+        }
+        val refreshSuccess = sessionChecker.tryRefreshToken()
+        if (refreshSuccess) {
+            emitEvent(SplashEvents.NavigateToMain)
+        } else {
+            sessionChecker.clearSession()
+            emitEvent(SplashEvents.NavigateToLogin)
         }
     }
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

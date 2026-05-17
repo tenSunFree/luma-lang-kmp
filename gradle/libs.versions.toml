@@ -9,6 +9,7 @@ android-targetSdk = "36"
 app-version-major = "1"
 app-version-minor = "0"
 app-version-patch = "0"
+tink-android = "1.13.0"
 
 
 # Kotlin Ecosystem
@@ -91,7 +92,7 @@ ios-mixpanel-swift = "5.2.0"
 
 [libraries]
 # ios deps using spm-for-kmp Plugin
-ios-mixpanel-swift = { name = "Mixpanel", group = "https://github.com/mixpanel/mixpanel-swift.git", version.ref="ios-mixpanel-swift" }
+ios-mixpanel-swift = { name = "Mixpanel", group = "https://github.com/mixpanel/mixpanel-swift.git", version.ref = "ios-mixpanel-swift" }
 # Compose
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
@@ -101,7 +102,7 @@ compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-pre
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose-multiplatform" }
 compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "compose-material3-icons-extended" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material3" }
-
+tink-android = { module = "com.google.crypto.tink:tink-android", version.ref = "tink-android" }
 
 # Mix panel
 kotlin-gradle-plugin-api = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", version.ref = "kotlin" }

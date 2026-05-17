@@ -1,6 +1,7 @@
 package com.sun.kmpstartertemplaterefined.feature_auth_domain.di
 
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.logics.LoginLogic
+import com.sun.kmpstartertemplaterefined.feature_auth_domain.logics.RefreshTokenLogic
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.logics.RegisterUserLogic
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.logics.SendOtpLogic
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.logics.VerifyOtpLogic
@@ -12,4 +13,5 @@ val authDomainModule = module {
     singleOf(::RegisterUserLogic)
     singleOf(::SendOtpLogic)
     singleOf(::VerifyOtpLogic)
+    singleOf(::RefreshTokenLogic)
 }

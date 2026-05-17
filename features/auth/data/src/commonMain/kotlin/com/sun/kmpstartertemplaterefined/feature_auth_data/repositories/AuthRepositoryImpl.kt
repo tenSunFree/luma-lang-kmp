@@ -1,22 +1,25 @@
 package com.sun.kmpstartertemplaterefined.feature_auth_data.repositories
 
-import com.sun.kmpstartertemplaterefined.feature_auth_data.datastore.TokenDataStore
+import com.sun.kmpstartertemplaterefined.feature_auth_data.local.AuthSessionStorage
 import com.sun.kmpstartertemplaterefined.feature_auth_data.mappers.toDomain
 import com.sun.kmpstartertemplaterefined.feature_auth_data.mappers.toDto
+import com.sun.kmpstartertemplaterefined.feature_auth_data.mappers.toUserSession
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.AuthRemoteDataSource
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.LoginRequestDto
+import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.RefreshTokenRequestDto
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.SendOtpRequestDto
 import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.VerifyOtpRequestDto
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.LoginParams
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.LoginResult
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.RegisterParams
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.RegisterResult
+import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.UserSession
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.repositories.AuthRepository
 import io.ktor.client.plugins.ClientRequestException
 
 class AuthRepositoryImpl(
     private val remoteDataSource: AuthRemoteDataSource,
-    private val tokenDataStore: TokenDataStore,
+    private val sessionStorage: AuthSessionStorage,
 ) : AuthRepository {
 
     override suspend fun login(params: LoginParams): Result<LoginResult> =
@@ -29,12 +32,8 @@ class AuthRepositoryImpl(
             } else {
                 val data = response.data
                     ?: return Result.failure(Exception("伺服器未回傳登入資料"))
-                // Store token in DataStore
-                tokenDataStore.saveTokens(
-                    token = data.token,
-                    refreshToken = data.refreshToken,
-                    userId = data.id,
-                )
+                // Store the complete UserSession in SecureStorage
+                sessionStorage.saveSession(data.toUserSession())
                 Result.success(data.toDomain())
             }
         } catch (e: ClientRequestException) {
@@ -49,6 +48,30 @@ class AuthRepositoryImpl(
         } catch (_: Exception) {
             Result.failure(Exception("網路連線異常，請確認網路後再試"))
         }
+
+    override suspend fun getSavedSession(): UserSession? =
+        sessionStorage.getSession()
+
+    override suspend fun refreshToken(): Result<UserSession> = runCatching {
+        val old = sessionStorage.getSession()
+            ?: error("尚未登入，無法刷新 Token")
+        val response = remoteDataSource.refreshToken(
+            RefreshTokenRequestDto(refreshToken = old.refreshToken)
+        )
+        if (!response.status) error(response.message.ifBlank { "Token 刷新失敗" })
+        val data = response.data ?: error("刷新回傳無資料")
+        val newSession = data.toUserSession()
+        // Only update the token pair, keep other user information unchanged.
+        sessionStorage.updateTokens(
+            token = newSession.token,
+            refreshToken = newSession.refreshToken,
+        )
+        newSession
+    }
+
+    override suspend fun logout() {
+        sessionStorage.clearSession()
+    }
 
     override suspend fun register(params: RegisterParams): Result<RegisterResult> =
         runCatching {
@@ -65,9 +88,8 @@ class AuthRepositoryImpl(
 
     override suspend fun verifyOtp(email: String, code: String): Result<Unit> =
         runCatching {
-            val response = remoteDataSource.verifyOtp(
-                VerifyOtpRequestDto(email = email, code = code)
-            )
+            val response =
+                remoteDataSource.verifyOtp(VerifyOtpRequestDto(email = email, code = code))
             if (!response.status) error(response.message.ifBlank { "驗證碼驗證失敗" })
         }
 }

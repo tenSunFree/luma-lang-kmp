@@ -6,6 +6,7 @@ import com.sun.kmpstartertemplaterefined.feature_auth_data.remote.dto.RegisterRe
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.LoginResult
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.RegisterParams
 import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.RegisterResult
+import com.sun.kmpstartertemplaterefined.feature_auth_domain.models.UserSession
 
 fun RegisterParams.toDto() = RegisterRequestDto(
     email = email,
@@ -36,4 +37,18 @@ fun LoginDataDto.toDomain() = LoginResult(
     email = email,
     token = token,
     refreshToken = refreshToken,
+)
+
+fun LoginDataDto.toUserSession() = UserSession(
+    id = id,
+    username = username,
+    fullName = fullName,
+    email = email,
+    phone = phone,
+    gender = gender,
+    roleId = roleId,
+    token = token,
+    refreshToken = refreshToken,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
 )

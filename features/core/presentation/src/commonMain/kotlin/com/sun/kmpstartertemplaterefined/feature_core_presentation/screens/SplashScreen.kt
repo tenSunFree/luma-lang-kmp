@@ -1,18 +1,3 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
 package com.sun.kmpstartertemplaterefined.feature_core_presentation.screens
 
 import androidx.compose.animation.core.Animatable
@@ -26,49 +11,40 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sun.kmpstartertemplaterefined.feature_core_presentation.viewmodels.SplashEvents
-import com.sun.kmpstartertemplaterefined.feature_core_presentation.viewmodels.SplashViewModel
 import com.sun.kmpstartertemplaterefined.feature_resources.Res
 import com.sun.kmpstartertemplaterefined.feature_resources.compose_multiplatform
 import com.sun.kmpstartertemplaterefined.ui_utils.side_effects.ObserveAsEvents
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
+import com.sun.kmpstartertemplaterefined.feature_core_presentation.viewmodels.SplashEvents
+import com.sun.kmpstartertemplaterefined.feature_core_presentation.viewmodels.SplashViewModel
 
-@Suppress("ParamsComparedByRef")
 @Composable
 fun SplashScreen(
-    onNavigate: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToMain: () -> Unit,
     onNavigateToOnboarding: () -> Unit,
 ) {
     val viewModel: SplashViewModel = koinViewModel()
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
-    ObserveAsEvents(
-        flow = viewModel.uiEvents
-    ) { event ->
+    // Start() is called as soon as the screen loads; LaunchedEffect(Unit) executes only once.
+    LaunchedEffect(Unit) {
+        viewModel.start()
+    }
+    ObserveAsEvents(flow = viewModel.uiEvents) { event ->
         when (event) {
-            SplashEvents.OnFinish -> {
-                if (state.isOnboarded)
-                    onNavigate()
-                else
-                    onNavigateToOnboarding()
-            }
+            SplashEvents.NavigateToMain -> onNavigateToMain()
+            SplashEvents.NavigateToLogin -> onNavigateToLogin()
+            SplashEvents.NavigateToOnboarding -> onNavigateToOnboarding()
         }
     }
-
-    SplashScreenContent(
-        modifier = Modifier
-    )
+    SplashScreenContent()
 }
-
 
 @Composable
 fun SplashScreenContent(
@@ -76,7 +52,6 @@ fun SplashScreenContent(
 ) {
     val scale = remember { Animatable(0.5f) }
     val alpha = remember { Animatable(0f) }
-
     LaunchedEffect(Unit) {
         scale.animateTo(
             targetValue = 1f,
@@ -90,7 +65,6 @@ fun SplashScreenContent(
             animationSpec = tween(durationMillis = 600)
         )
     }
-
     Box(
         modifier = modifier
             .fillMaxSize()
