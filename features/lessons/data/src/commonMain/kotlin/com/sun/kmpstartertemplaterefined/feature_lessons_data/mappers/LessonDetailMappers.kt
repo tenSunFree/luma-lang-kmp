@@ -4,7 +4,7 @@ import com.sun.kmpstartertemplaterefined.feature_lessons_data.remote.dto.*
 import com.sun.kmpstartertemplaterefined.feature_lessons_domain.models.*
 
 fun LessonDetailDataDto.toDomain(): LessonDetail = LessonDetail(
-    lesson = lesson.toDomain(),
+    lesson = content.toDomain(),
     playback = playback.toDomain(),
     captionsVersion = captionsVersion,
     captions = captions.map { it.toDomain() },

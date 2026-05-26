@@ -11,7 +11,7 @@ data class LessonDetailResponseDto(
 
 @Serializable
 data class LessonDetailDataDto(
-    val lesson: LessonDto = LessonDto(),
+    val content: LessonDto = LessonDto(),
     val playback: PlaybackDto = PlaybackDto(),
     val captionsVersion: Int = 1,
     val captions: List<CaptionDto> = emptyList(),

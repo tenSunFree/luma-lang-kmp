@@ -5,15 +5,26 @@ import com.sun.kmpstartertemplaterefined.feature_lessons_data.remote.dto.Lessons
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 
 class LessonsRemoteDataSourceImpl(
     private val httpClient: HttpClient,
     private val baseUrl: String,
 ) : LessonsRemoteDataSource {
 
-    override suspend fun getLessons(): LessonsResponseDto =
-        httpClient.get("$baseUrl/lessons").body()
+    // GET /api/v1/contents?type=video&page=1&limit=20
+    override suspend fun getLessons(
+        type: String,
+        page: Int,
+        limit: Int,
+    ): LessonsResponseDto =
+        httpClient.get("$baseUrl/contents") {
+            parameter("type", type)
+            parameter("page", page)
+            parameter("limit", limit)
+        }.body()
 
+    // GET /api/v1/contents/{lessonId}
     override suspend fun getLessonDetail(lessonId: String): LessonDetailResponseDto =
-        httpClient.get("$baseUrl/lessons/$lessonId").body()
+        httpClient.get("$baseUrl/contents/$lessonId").body()
 }

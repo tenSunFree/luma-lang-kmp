@@ -2,6 +2,7 @@ package com.sun.kmpstartertemplaterefined.feature_lessons_domain.models
 
 data class Lesson(
     val id: String,
+    val type: String,
     val category: String,
     val coverUrl: String,
     val createdAt: String,

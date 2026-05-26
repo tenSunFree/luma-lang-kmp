@@ -4,6 +4,11 @@ import com.sun.kmpstartertemplaterefined.feature_lessons_data.remote.dto.LessonD
 import com.sun.kmpstartertemplaterefined.feature_lessons_data.remote.dto.LessonsResponseDto
 
 interface LessonsRemoteDataSource {
-    suspend fun getLessons(): LessonsResponseDto
+    suspend fun getLessons(
+        type: String = "video",
+        page: Int = 1,
+        limit: Int = 20,
+    ): LessonsResponseDto
+
     suspend fun getLessonDetail(lessonId: String): LessonDetailResponseDto
 }

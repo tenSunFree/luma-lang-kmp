@@ -11,17 +11,17 @@ class LessonsRepositoryImpl(
     private val remoteDataSource: LessonsRemoteDataSource,
 ) : LessonsRepository {
 
-    override suspend fun getLessons(): Result<List<Lesson>> {
+    override suspend fun getLessons(
+        type: String,
+        page: Int,
+        limit: Int,
+    ): Result<List<Lesson>> {
         return try {
-            val response = remoteDataSource.getLessons()
+            val response = remoteDataSource.getLessons(type = type, page = page, limit = limit)
             if (!response.status) {
                 return Result.failure(Exception(response.message.ifBlank { "取得影片列表失敗" }))
             }
-            // Flatten all the movies in all categories into a single list
-            val lessons = response.data
-                .values
-                .flatten()
-                .map { it.toDomain() }
+            val lessons = response.data.contents.map { it.toDomain() }
             Result.success(lessons)
         } catch (e: ClientRequestException) {
             val message = when (e.response.status.value) {
@@ -40,9 +40,7 @@ class LessonsRepositoryImpl(
         return try {
             val response = remoteDataSource.getLessonDetail(lessonId)
             if (!response.status) {
-                return Result.failure(
-                    Exception(response.message.ifBlank { "取得影片詳情失敗" })
-                )
+                return Result.failure(Exception(response.message.ifBlank { "取得影片詳情失敗" }))
             }
             Result.success(response.data.toDomain())
         } catch (e: ClientRequestException) {

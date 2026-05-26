@@ -5,6 +5,7 @@ import com.sun.kmpstartertemplaterefined.feature_lessons_domain.models.Lesson
 
 fun LessonDto.toDomain(): Lesson = Lesson(
     id = id,
+    type = type,
     category = category,
     coverUrl = coverUrl,
     createdAt = createdAt,

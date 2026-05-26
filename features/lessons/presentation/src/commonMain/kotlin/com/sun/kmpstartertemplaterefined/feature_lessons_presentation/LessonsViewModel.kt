@@ -28,7 +28,7 @@ class LessonsViewModel(
         if (_state.value.isLoading) return
         _state.value = _state.value.copy(isLoading = true, errorMessage = null)
         viewModelScope.launch {
-            getLessonsLogic()
+            getLessonsLogic(type = "video", page = 1, limit = 20)
                 .onSuccess { lessons ->
                     _state.value = _state.value.copy(
                         isLoading = false,

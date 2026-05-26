@@ -4,14 +4,23 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LessonsResponseDto(
-    val data: Map<String, List<LessonDto>> = emptyMap(),
-    val message: String = "",
     val status: Boolean = false,
+    val message: String = "",
+    val data: LessonsDataDto = LessonsDataDto(),
+)
+
+@Serializable
+data class LessonsDataDto(
+    val contents: List<LessonDto> = emptyList(),
+    val page: Int = 1,
+    val limit: Int = 20,
+    val total: Int = 0,
 )
 
 @Serializable
 data class LessonDto(
     val id: String = "",
+    val type: String = "",
     val category: String = "",
     val coverUrl: String = "",
     val createdAt: String = "",
