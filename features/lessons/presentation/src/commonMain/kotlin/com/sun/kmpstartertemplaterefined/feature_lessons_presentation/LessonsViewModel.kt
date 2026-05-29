@@ -15,20 +15,29 @@ class LessonsViewModel(
     private val _state = MutableStateFlow(LessonsState())
     val state: StateFlow<LessonsState> = _state.asStateFlow()
 
+    private var currentType: String = "video"
+
     fun onAction(action: LessonsAction) {
         when (action) {
-            LessonsAction.LoadLessons,
-            LessonsAction.RetryClicked -> loadLessons()
-            LessonsAction.ErrorShown ->
-                _state.value = _state.value.copy(errorMessage = null)
+            is LessonsAction.LoadLessons -> {
+                currentType = action.type
+                loadLessons(type = action.type)
+            }
+
+            LessonsAction.RetryClicked -> loadLessons(type = currentType)
+            LessonsAction.ErrorShown -> _state.value = _state.value.copy(errorMessage = null)
         }
     }
 
-    private fun loadLessons() {
+    private fun loadLessons(type: String) {
         if (_state.value.isLoading) return
-        _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+        _state.value = _state.value.copy(
+            isLoading = true,
+            errorMessage = null,
+            lessons = emptyList(),
+        )
         viewModelScope.launch {
-            getLessonsLogic(type = "video", page = 1, limit = 20)
+            getLessonsLogic(type = type, page = 1, limit = 20)
                 .onSuccess { lessons ->
                     _state.value = _state.value.copy(
                         isLoading = false,
@@ -38,7 +47,7 @@ class LessonsViewModel(
                 .onFailure { error ->
                     _state.value = _state.value.copy(
                         isLoading = false,
-                        errorMessage = error.message ?: "取得影片列表失敗",
+                        errorMessage = error.message ?: "取得內容列表失敗",
                     )
                 }
         }

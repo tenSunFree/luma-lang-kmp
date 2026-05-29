@@ -1,8 +1,5 @@
 package com.sun.kmpstartertemplaterefined.core.ui.screens.main.tabs
 
-import ColumnTab
-import StoryTab
-import StudyPackTab
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
