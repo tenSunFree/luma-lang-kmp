@@ -46,9 +46,7 @@ kotlin {
     }
 
     sourceSets {
-        androidMain.dependencies {
-            implementation(libs.android.youtube.player)
-        }
+        androidMain.dependencies {}
         commonMain.dependencies {
             // local modules
             api(projects.starter.core)

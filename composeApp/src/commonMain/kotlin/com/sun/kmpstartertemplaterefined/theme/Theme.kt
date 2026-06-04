@@ -8,7 +8,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-
 val lightScheme =
     lightColorScheme(
         primary = primaryLight,
@@ -92,7 +91,6 @@ val darkScheme =
 expect fun getDynamicColorScheme(darkTheme: Boolean): ColorScheme?
 
 
-
 @Composable
 fun ApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -107,7 +105,6 @@ fun ApplicationTheme(
             darkTheme -> darkScheme
             else -> lightScheme
         }
-
     val appTypography =
         Typography(
             displayLarge = baselineTypography.displayLarge.copy(
@@ -161,6 +158,4 @@ fun ApplicationTheme(
         typography = appTypography,
         content = content,
     )
-
-
 }

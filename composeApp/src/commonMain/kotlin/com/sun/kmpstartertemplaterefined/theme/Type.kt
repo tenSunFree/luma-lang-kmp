@@ -1,18 +1,3 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
 package com.sun.kmpstartertemplaterefined.theme
 
 import androidx.compose.material3.Typography
@@ -56,8 +41,5 @@ fun getAppFontFamily() = FontFamily(
     )
 )
 
-
 // Default Material 3 typography values
 val baselineTypography = Typography()
-
-

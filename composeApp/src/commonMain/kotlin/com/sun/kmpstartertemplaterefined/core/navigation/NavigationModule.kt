@@ -12,7 +12,7 @@ import com.sun.kmpstartertemplaterefined.feature_purchases_presentation.ui.scree
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module
 import org.koin.dsl.navigation3.navigation
-import com.sun.kmpstartertemplaterefined.core.ui.screens.lesson.LessonPlayerScreen
+import com.sun.kmpstartertemplaterefined.feature_lessons_presentation.screens.LessonPlayerScreen
 
 @OptIn(KoinExperimentalAPI::class)
 val navigationModule = module {

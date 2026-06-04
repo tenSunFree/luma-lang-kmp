@@ -39,9 +39,13 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.stdlib)
                 implementation(projects.features.lessons.domain)
+                // Navigation
+                implementation(projects.features.navigation)
             }
         }
-        androidMain { dependencies { } }
-        iosMain { dependencies { } }
+        androidMain.dependencies {
+            implementation(libs.android.youtube.player)
+        }
+        androidMain.dependencies { }
     }
 }

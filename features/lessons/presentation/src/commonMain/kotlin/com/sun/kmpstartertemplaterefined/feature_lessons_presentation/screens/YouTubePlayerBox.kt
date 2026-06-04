@@ -1,4 +1,4 @@
-package com.sun.kmpstartertemplaterefined.core.ui.screens.lesson
+package com.sun.kmpstartertemplaterefined.feature_lessons_presentation.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

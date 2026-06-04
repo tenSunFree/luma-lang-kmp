@@ -1,4 +1,4 @@
-package com.sun.kmpstartertemplaterefined.core.ui.screens.lesson
+package com.sun.kmpstartertemplaterefined.feature_lessons_presentation.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
