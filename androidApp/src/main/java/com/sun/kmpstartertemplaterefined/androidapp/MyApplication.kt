@@ -1,7 +1,7 @@
 package com.sun.kmpstartertemplaterefined.androidapp
 
 import android.app.Application
-import com.sun.kmpstartertemplaterefined.core.initKmpApp
+import com.sun.kmpstartertemplaterefined.app.initKmpApp
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 

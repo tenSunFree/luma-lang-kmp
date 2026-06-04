@@ -1,9 +1,9 @@
-package com.sun.kmpstartertemplaterefined.core.di
+package com.sun.kmpstartertemplaterefined.app.di
 
-import com.sun.kmpstartertemplaterefined.core.KmpAppInitializer
+import com.sun.kmpstartertemplaterefined.app.KmpAppInitializer
 import com.sun.kmpstartertemplaterefined.core.datastore.di.dataStoreModule
 import com.sun.kmpstartertemplaterefined.core.events.di.eventsModule
-import com.sun.kmpstartertemplaterefined.core.navigation.navigationModule
+import com.sun.kmpstartertemplaterefined.navigation.navigationModule
 import com.sun.kmpstartertemplaterefined.feature_analytics_data.di.analyticsDataModule
 import com.sun.kmpstartertemplaterefined.feature_auth_data.config.AuthConfig
 import com.sun.kmpstartertemplaterefined.feature_auth_data.di.authDataModule

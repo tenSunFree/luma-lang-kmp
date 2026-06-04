@@ -1,19 +1,4 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
-package com.sun.kmpstartertemplaterefined.core
+package com.sun.kmpstartertemplaterefined.app
 
 import androidx.compose.runtime.Stable
 import com.sun.kmpstartertemplaterefined.feature_purchases_domain.logics.PurchasesLogics

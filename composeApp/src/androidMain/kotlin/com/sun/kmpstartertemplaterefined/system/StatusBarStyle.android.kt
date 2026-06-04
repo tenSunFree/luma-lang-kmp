@@ -1,4 +1,4 @@
-package com.sun.kmpstartertemplaterefined.core.ui.system
+package com.sun.kmpstartertemplaterefined.system
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable

@@ -1,6 +1,7 @@
-package com.sun.kmpstartertemplaterefined.core
+package com.sun.kmpstartertemplaterefined.app
 
-import com.sun.kmpstartertemplaterefined.core.di.initKoin
+import com.sun.kmpstartertemplaterefined.core.KmpStarter
+import com.sun.kmpstartertemplaterefined.app.di.initKoin
 import com.sun.kmpstartertemplaterefined.core.platform.platform
 import com.sun.kmpstartertemplaterefined.feature_purchases_data.initRevenueCat
 import com.sun.kmpstartertemplaterefined.feature_remote_config_domain.RemoteConfig

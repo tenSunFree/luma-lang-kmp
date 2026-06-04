@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.sun.kmpstartertemplaterefined.core.ui.screens.main.components.MainBottomBar
 import com.sun.kmpstartertemplaterefined.core.ui.screens.main.tabs.EasyLearningScreen
-import com.sun.kmpstartertemplaterefined.core.ui.system.SetStatusBarStyle
+import com.sun.kmpstartertemplaterefined.system.SetStatusBarStyle
 
 @Composable
 fun MainScreen() {

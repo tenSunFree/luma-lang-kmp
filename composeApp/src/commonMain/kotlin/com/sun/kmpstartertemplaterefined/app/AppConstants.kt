@@ -1,19 +1,4 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
-package com.sun.kmpstartertemplaterefined.core
+package com.sun.kmpstartertemplaterefined.app
 
 import com.sun.kmpstartertemplaterefined.core.platform.Platform
 import com.sun.kmpstartertemplaterefined.core.platform.platform

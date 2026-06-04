@@ -1,4 +1,4 @@
-package com.sun.kmpstartertemplaterefined.core.navigation
+package com.sun.kmpstartertemplaterefined.navigation
 
 import com.sun.kmpstartertemplaterefined.feature_auth_presentation.screens.LoginScreen
 import com.sun.kmpstartertemplaterefined.core.ui.screens.main.MainScreen

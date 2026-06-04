@@ -30,7 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import com.sun.kmpstartertemplaterefined.core.KmpAppInitializer
+import com.sun.kmpstartertemplaterefined.app.KmpAppInitializer
 import com.sun.kmpstartertemplaterefined.core.datastore.theme.ThemeDataStore
 import com.sun.kmpstartertemplaterefined.core.events.controllers.SnackbarController
 import com.sun.kmpstartertemplaterefined.feature_navigation.StarterNavigation

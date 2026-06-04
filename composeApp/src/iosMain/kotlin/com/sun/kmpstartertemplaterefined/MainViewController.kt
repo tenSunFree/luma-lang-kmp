@@ -16,7 +16,7 @@
 package com.sun.kmpstartertemplaterefined
 
 import androidx.compose.ui.window.ComposeUIViewController
-import com.sun.kmpstartertemplaterefined.core.initKmpApp
+import com.sun.kmpstartertemplaterefined.app.initKmpApp
 
 
 fun mainViewController() = ComposeUIViewController(
