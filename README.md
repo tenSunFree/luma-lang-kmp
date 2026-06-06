@@ -1,4 +1,4 @@
-# starter-template-refined-kmp
+# luma-lang-kmp
 
 ![KMP CI](https://github.com/tenSunFree/KmpStarterTemplateRefined/actions/workflows/ci.yml/badge.svg)
 
@@ -21,7 +21,7 @@ It can also be paired with my Go backend boilerplate to demonstrate a full-stack
 
 This project can be used together with my Go backend boilerplate:
 
-- [rest-boilerplate-refined-go](https://github.com/tenSunFree/rest-boilerplate-refined-go)
+- [luma-lang-go](https://github.com/tenSunFree/luma-lang-go)
 
 The backend project provides a RESTful API foundation built with Go, Gin, PostgreSQL, sqlx, Redis, JWT, Docker, and Clean Architecture.
 
