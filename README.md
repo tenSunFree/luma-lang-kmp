@@ -71,6 +71,16 @@ It can serve as the server-side foundation for authentication, user management, 
 - Playback progress timer managed by ViewModel with periodic progress updates
 - Seek-only sync to YouTube player via `seekToMs`, preventing frame drops caused by continuous seek calls
 
+### Live Streaming
+
+- Real-time live video streaming via Agora RTC SDK
+- Audience role with automatic subscription to remote audio and video streams
+- Remote video rendering through native `SurfaceView` embedded in Compose via `AndroidView`
+- Stable video rendering across Compose recomposition and tab switching
+- Handles early-join and late-join scenarios via Agora video state callbacks
+- Teacher PiP overlay with visibility toggle
+- Chat / Participants tab panel with message list and input bar
+
 ---
 
 ## Tech Stack
@@ -89,6 +99,11 @@ It can serve as the server-side foundation for authentication, user management, 
   Cross-platform credential protection with platform-native security backends (Android encrypts session data with Tink AEAD AES256-GCM backed by Android Keystore; iOS persists credentials in the system Keychain using `kSecClassGenericPassword` with `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`)
 - android-youtube-player Integration  
   Native Android YouTube embedding via `YouTubePlayerView` inside Compose using `android-youtube-player:core:13.0.0`. Uses `IFramePlayerOptions` to hide native controls, blocks direct interaction on the video surface with a transparent overlay, and synchronizes play / pause / seek commands from Compose state.
+- Agora RTC Integration  
+  Real-time live video streaming via Agora RTC SDK with Compose lifecycle management.
+  Implements expect/actual `LiveRtcVideoView` for platform-specific rendering, manages
+  `RtcEngine` lifecycle with `DisposableEffect`, embeds native `SurfaceView` through
+  `AndroidView`, and handles remote stream arrival via Agora callbacks to support both early-join and late-join scenarios.
 
 ---
 
