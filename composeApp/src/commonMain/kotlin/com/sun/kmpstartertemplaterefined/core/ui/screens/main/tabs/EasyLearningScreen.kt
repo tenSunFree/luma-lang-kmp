@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sun.kmpstartertemplaterefined.feature_navigation.StarterNavigator
+import com.sun.kmpstartertemplaterefined.feature_navigation.screens.StarterScreens
 
 private val Pink = Color(0xFFFF3F68)
 private val TextDark = Color(0xFF4A4A4A)
@@ -27,6 +29,7 @@ private val TabUnselected = Color(0xFFC5C5C5)
 
 @Composable
 fun EasyLearningScreen() {
+    val navigator = StarterNavigator.getCurrent()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("直播室", "FunTV", "影片", "音樂", "童話", "專欄", "大補帖")
     Column(modifier = Modifier.fillMaxSize()) {
@@ -34,10 +37,22 @@ fun EasyLearningScreen() {
         TabRow(
             tabs = tabs,
             selectedIndex = selectedTabIndex,
-            onTabSelected = { selectedTabIndex = it },
-        )
+            onTabSelected = { selectedTabIndex = it })
         when (selectedTabIndex) {
-            0 -> LiveStreamingTab()
+            0 -> LiveStreamingTab(
+                onOpenLiveRoom = { course ->
+                    navigator.navigateTo(
+                        StarterScreens.LiveRoom(
+                            courseId = course.id,
+                            roomId = course.roomId,
+                            teacherName = course.teacherName,
+                            title = course.title,
+                            emoji = course.emoji,
+                        )
+                    )
+                }
+            )
+
             1 -> FunTvTab()
             2 -> VideoTab()
             3 -> MusicTab()

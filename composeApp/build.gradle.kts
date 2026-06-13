@@ -46,7 +46,9 @@ kotlin {
     }
 
     sourceSets {
-        androidMain.dependencies {}
+        androidMain.dependencies {
+            implementation("io.agora.rtc:full-rtc-basic:4.6.3")
+        }
         commonMain.dependencies {
             // local modules
             api(projects.starter.core)

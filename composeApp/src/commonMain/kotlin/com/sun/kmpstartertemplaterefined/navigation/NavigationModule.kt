@@ -1,7 +1,9 @@
 package com.sun.kmpstartertemplaterefined.navigation
 
+import com.sun.kmpstartertemplaterefined.core.ui.screens.live.LiveRoomScreen
 import com.sun.kmpstartertemplaterefined.feature_auth_presentation.screens.LoginScreen
 import com.sun.kmpstartertemplaterefined.core.ui.screens.main.MainScreen
+import com.sun.kmpstartertemplaterefined.core.ui.screens.main.tabs.LiveCourseUi
 import com.sun.kmpstartertemplaterefined.core.ui.screens.welcome.WelcomeScreen
 import com.sun.kmpstartertemplaterefined.feature_core_presentation.screens.OnboardingV1Screen
 import com.sun.kmpstartertemplaterefined.feature_core_presentation.screens.SplashScreen
@@ -76,5 +78,24 @@ val navigationModule = module {
     }
     navigation<StarterScreens.LessonPlayer> { route ->
         LessonPlayerScreen(lessonId = route.lessonId)
+    }
+    // LiveRoom route
+    navigation<StarterScreens.LiveRoom> { route ->
+        val navigator = StarterNavigator.getCurrent()
+        val course = LiveCourseUi(
+            id = route.courseId,
+            roomId = route.roomId,
+            teacherName = route.teacherName,
+            title = route.title,
+            emoji = route.emoji,
+            category = "",
+            level = "",
+            isRequired = false,
+            scheduledTime = "",
+        )
+        LiveRoomScreen(
+            course = course,
+            onBack = { navigator.navigateUp() },
+        )
     }
 }

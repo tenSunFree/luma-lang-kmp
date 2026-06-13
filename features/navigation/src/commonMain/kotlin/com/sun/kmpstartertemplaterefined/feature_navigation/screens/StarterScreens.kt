@@ -25,4 +25,13 @@ sealed class StarterScreens : NavKey {
 
     @Serializable
     data class LessonPlayer(val lessonId: String) : StarterScreens()
+
+    @Serializable
+    data class LiveRoom(
+        val courseId: String,
+        val roomId: String,
+        val teacherName: String,
+        val title: String,
+        val emoji: String,
+    ) : StarterScreens()
 }

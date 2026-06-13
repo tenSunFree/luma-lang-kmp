@@ -26,6 +26,8 @@ private val TextGray = Color(0xFF777777)
 private val BorderGray = Color(0xFFE5E5E5)
 
 data class LiveCourseUi(
+    val id: String,
+    val roomId: String,
     val teacherName: String,
     val title: String,
     val category: String,
@@ -37,8 +39,10 @@ data class LiveCourseUi(
 
 val fakeLiveCourses = listOf(
     LiveCourseUi(
+        id = "course_001",
+        roomId = "funday_room_001",
         teacherName = "KarolChin",
-        title = "現在分詞和過去分詞解析",
+        title = "Past Verb Pronunciation",
         category = "語言學習 (Language Learning)",
         level = "A2",
         isRequired = true,
@@ -46,8 +50,10 @@ val fakeLiveCourses = listOf(
         emoji = "👩🏻",
     ),
     LiveCourseUi(
+        id = "course_002",
+        roomId = "funday_room_002",
         teacherName = "MikeChang",
-        title = "雅思寫作學術組-判斷圖表和主題 (Task1-Unit1)",
+        title = "Past Verb Spelling",
         category = "檢定班 (MEXAM)",
         level = "B1",
         isRequired = true,
@@ -56,8 +62,11 @@ val fakeLiveCourses = listOf(
     ),
 )
 
+// onOpenLiveRoom: Upload the course when you click "Enter Live Stream".
 @Composable
-fun LiveStreamingTab() {
+fun LiveStreamingTab(
+    onOpenLiveRoom: (LiveCourseUi) -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -92,7 +101,7 @@ fun LiveStreamingTab() {
         )
         Spacer(modifier = Modifier.height(32.dp))
         Text(
-            text = "Coming soon...",
+            text = "Coming soon.",
             fontSize = 22.sp,
             fontWeight = FontWeight.ExtraBold,
             color = TextDark,
@@ -101,14 +110,20 @@ fun LiveStreamingTab() {
         HorizontalDivider(color = BorderGray)
         Spacer(modifier = Modifier.height(16.dp))
         fakeLiveCourses.forEach { course ->
-            LiveCourseCard(course = course)
+            LiveCourseCard(
+                course = course,
+                onEnterRoom = { onOpenLiveRoom(course) },
+            )
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
 
 @Composable
-fun LiveCourseCard(course: LiveCourseUi) {
+fun LiveCourseCard(
+    course: LiveCourseUi,
+    onEnterRoom: () -> Unit,
+) {
     Column {
         Row(modifier = Modifier.fillMaxWidth()) {
             Box(
@@ -159,11 +174,17 @@ fun LiveCourseCard(course: LiveCourseUi) {
                     lineHeight = 22.sp,
                 )
                 Spacer(modifier = Modifier.height(6.dp))
-                Text(text = course.category, fontSize = 14.sp, color = TextGray)
+                Text(
+                    text = course.category,
+                    fontSize = 14.sp,
+                    color = TextGray,
+                )
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedButton(
                     onClick = {},
-                    modifier = Modifier.fillMaxWidth().height(40.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
                     shape = RoundedCornerShape(6.dp),
                     border = BorderStroke(1.dp, BorderGray),
                 ) {
@@ -187,15 +208,15 @@ fun LiveCourseCard(course: LiveCourseUi) {
                 modifier = Modifier.weight(1f),
             )
             Button(
-                onClick = {},
+                onClick = onEnterRoom,
                 shape = RoundedCornerShape(6.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF444444),
+                    containerColor = Pink,
                     contentColor = Color.White,
                 ),
                 modifier = Modifier.height(40.dp),
             ) {
-                Text("提醒", fontSize = 15.sp)
+                Text("進入直播", fontSize = 15.sp)
             }
         }
         Spacer(modifier = Modifier.height(4.dp))

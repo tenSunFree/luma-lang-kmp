@@ -17,6 +17,7 @@ fun rememberStarterBackStack(vararg initialScreens: NavKey): NavBackStack<NavKey
         subclass(StarterScreens.Login::class)
         subclass(StarterScreens.Main::class)
         subclass(StarterScreens.LessonPlayer::class)
+        subclass(StarterScreens.LiveRoom::class)
     }
     return backstack
 }

@@ -1,18 +1,3 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
 package com.sun.kmpstartertemplaterefined.core.datastore.theme
 
 import androidx.datastore.preferences.core.Preferences
@@ -30,7 +15,6 @@ class ThemeDataStore(
     companion object {
         private val PREF_THEME = stringPreferencesKey("theme_mode")
         private val PREF_DYNAMIC_COLORS = booleanPreferencesKey("dynamic_colors")
-
         val DEFAULT_THEME_MODE = ThemeMode.LIGHT
         const val DEFAULT_DYNAMIC_COLOR_SCHEME = false
     }
@@ -41,11 +25,9 @@ class ThemeDataStore(
         it[PREF_DYNAMIC_COLORS] ?: DEFAULT_DYNAMIC_COLOR_SCHEME
     }
 
-
     val themeMode = dataStore.data.map { it: Preferences ->
         ThemeMode.valueOf(it[PREF_THEME] ?: DEFAULT_THEME_MODE.name)
     }
-
 
     suspend fun setDynamicColor(value: Boolean) {
         dataStore.edit {
@@ -72,22 +54,3 @@ class ThemeDataStore(
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

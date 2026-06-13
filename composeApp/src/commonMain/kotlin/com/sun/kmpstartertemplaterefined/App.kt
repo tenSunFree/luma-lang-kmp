@@ -1,18 +1,3 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2026
- *  *  *
- *  *  * Author: Athar Gul
- *  *  * GitHub: https://github.com/DevAtrii/Kmp-Starter-Template
- *  *  * YouTube: https://www.youtube.com/@devatrii/videos
- *  *  *
- *  *  * All rights reserved.
- *  *
- *  *
- *
- */
-
 package com.sun.kmpstartertemplaterefined
 
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -57,11 +42,9 @@ fun App() {
     LaunchOnce {
         appInitializer.initialize()
     }
-
     val snackbarHostState = remember {
         SnackbarHostState()
     }
-
     GlobalSideEffects(snackbarHostState = snackbarHostState)
     MainApp(snackbarHostState = snackbarHostState)
 }
@@ -83,7 +66,6 @@ private fun MainApp(
     val currentDynamicColor by themeDataStore.dynamicColor.collectAsState(
         initial = ThemeDataStore.DEFAULT_DYNAMIC_COLOR_SCHEME
     )
-
     AppUpdateProvider(
         force = true
     ) {
@@ -122,7 +104,6 @@ private fun GlobalSideEffects(
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope = rememberCoroutineScope(),
 ) {
-
     ObserveAsEvents(
         flow = SnackbarController.events,
     ) { snackbarEvent ->
@@ -132,10 +113,8 @@ private fun GlobalSideEffects(
                 snackbarHostState.currentSnackbarData?.dismiss()
                 delay(100)
             }
-
             if (snackbarEvent.message.isEmpty())
                 return@launch
-
             val result = snackbarHostState.showSnackbar(
                 message = snackbarEvent.message,
                 actionLabel = snackbarEvent.action?.name,
