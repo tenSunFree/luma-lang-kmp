@@ -23,8 +23,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc.AgoraLocalConfig
+import com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc.LiveRtcClassroomView
 import com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc.LiveRtcSession
-import com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc.LiveRtcVideoView
 import com.sun.kmpstartertemplaterefined.core.ui.screens.main.tabs.LiveCourseUi
 import com.sun.kmpstartertemplaterefined.utils.logging.Log
 
@@ -33,6 +34,12 @@ private val LiveBg = Color.Black
 private val PanelBg = Color(0xFF1B1B1B)
 private val ControlBg = Color(0xFF3A3A3A)
 private val MutedBadge = Color(0xFF555555)
+
+// The UID shared by the teacher's screen (agreed upon with the teacher)
+private const val TEACHER_SCREEN_UID = 2000
+
+// The teacher's camera UID (agreed upon with the teacher)
+private const val TEACHER_CAMERA_UID = 1000
 
 data class LiveParticipantUi(
     val id: String,
@@ -52,11 +59,7 @@ enum class LiveRoomTab { Chat, Participants }
 
 private val mockParticipants = listOf(
     LiveParticipantUi(
-        id = "teacher",
-        name = "KarolChin",
-        avatarEmoji = "👩🏻",
-        isMuted = false,
-        isTeacher = true
+        id = "teacher", name = "KarolChin", avatarEmoji = "👩🏻", isMuted = false, isTeacher = true
     ),
     LiveParticipantUi(id = "jeffery", name = "Jeffery", avatarEmoji = "🌿", isMuted = true),
     LiveParticipantUi(id = "sun", name = "Sun", avatarEmoji = null, isMuted = true),
@@ -79,10 +82,7 @@ fun LiveRoomScreen(
     var speakerEnabled by remember { mutableStateOf(true) }
     var inputText by remember { mutableStateOf("") }
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(LiveBg)
-            .systemBarsPadding(),
+        modifier = Modifier.fillMaxSize().background(LiveBg).systemBarsPadding(),
     ) {
         // Header: Back + FUNDAY + Eye + Speaker
         LiveRoomHeader(
@@ -96,6 +96,7 @@ fun LiveRoomScreen(
         LiveVideoArea(
             course = course,
             showTeacherVideo = showTeacherVideo,
+            speakerEnabled = speakerEnabled,
         )
         // Chat / Participants Tab column
         LiveRoomTabs(
@@ -104,10 +105,7 @@ fun LiveRoomScreen(
         )
         // Content Panel
         Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .background(PanelBg),
+            modifier = Modifier.weight(1f).fillMaxWidth().background(PanelBg),
         ) {
             when (selectedTab) {
                 LiveRoomTab.Chat -> LiveChatPanel(messages = mockChatMessages)
@@ -133,10 +131,7 @@ private fun LiveRoomHeader(
     onToggleSpeaker: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp)
-            .padding(horizontal = 12.dp),
+        modifier = Modifier.fillMaxWidth().height(80.dp).padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onBack) {
@@ -190,111 +185,32 @@ private fun LiveRoomHeader(
     }
 }
 
-// Live Stream Screen Area
 @Composable
 private fun LiveVideoArea(
     course: LiveCourseUi,
     showTeacherVideo: Boolean,
+    speakerEnabled: Boolean,
 ) {
-    // Temporary token for testing (generated from the Agora Console)
-    val testSession = LiveRtcSession(
-        appId = "ca5529591106471fafbc7bb27b30b37a",
-        token = "007eJxTYKiTO2B+Z9acC735SSruU3QMH3HNbS09qHRpQvmzLl+rQkYFhuREU1MjS1NLQ0MDMxNzw7TEtKRk86QkI/MkY4MkY/NEgTjdrIZARgb7U1EMjFAI4vMzpJXmpSRWxhfl5+fGGxgYMjAAAFXpIX0=",             // ← 填入
-        channelName = course.roomId,
-        uid = 0,
-    )
-    Log.d("LiveRoomScreen", "testSession: $testSession")
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(240.dp)
-            .background(Color.Black),
-    ) {
-        // Real Agora footage (students watching a video stream recommended by their teacher)
-        LiveRtcVideoView(
-            modifier = Modifier.fillMaxSize(),
-            session = testSession,
-            showLocalPreview = false,  // Students do not push local screen
+    val session = remember(course.roomId) {
+        LiveRtcSession(
+            appId = AgoraLocalConfig.appId,
+            token = AgoraLocalConfig.token,
+            channelName = course.roomId,
+            uid = 0,  // 0 = Agora automatically assigns student UIDs
         )
-        // Teacher's PiP mock is temporarily paused; Agora remote user screens can be connected later.
-        if (showTeacherVideo) {
-            MockTeacherCameraView(
-                modifier = Modifier
-                    .width(180.dp)
-                    .height(100.dp)
-                    .align(Alignment.TopEnd),
-                teacherName = course.teacherName,
-                emoji = course.emoji,
-            )
-        }
     }
-}
-
-@Composable
-private fun MockSlideView(modifier: Modifier = Modifier, title: String) {
-    Column(
-        modifier = modifier
-            .background(Color(0xFFEDEDED))
-            .padding(12.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(36.dp)
-                .background(Color(0xFF1A1A1A)),
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            Text(
-                text = title,
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 12.dp),
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFF111111))
-                .padding(12.dp),
-        ) {
-            Text(
-                "Past Verb Pronunciation",
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(Modifier.height(10.dp))
-            Text("• loved, changed, dreamed, traveled", color = Color.White, fontSize = 13.sp)
-            Spacer(Modifier.height(6.dp))
-            Text("• washed, cooked, kissed, helped", color = Color.White, fontSize = 13.sp)
-            Spacer(Modifier.height(6.dp))
-            Text("• started, visited, ended, needed", color = Color.White, fontSize = 13.sp)
-        }
-    }
-}
-
-@Composable
-private fun MockTeacherCameraView(
-    modifier: Modifier = Modifier,
-    teacherName: String,
-    emoji: String,
-) {
-    Box(
-        modifier = modifier.background(Color(0xFFDDDDDD)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = emoji, fontSize = 36.sp)
-            Text(
-                text = teacherName,
-                color = Color.Black,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
+    Log.d(
+        "LiveRoomScreen", "channel=${session.channelName}, appIdBlank=${session.appId.isBlank()}"
+    )
+    // Single Composable, single RTCEngine, dual-view
+    LiveRtcClassroomView(
+        modifier = Modifier.fillMaxWidth().height(240.dp).background(Color.Black),
+        session = session,
+        screenUid = TEACHER_SCREEN_UID,   // 2000
+        cameraUid = TEACHER_CAMERA_UID,   // 1000
+        showCamera = showTeacherVideo,
+        speakerEnabled = speakerEnabled,
+    )
 }
 
 // Chat / Participants Tab column
@@ -304,10 +220,7 @@ private fun LiveRoomTabs(
     onTabSelected: (LiveRoomTab) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(64.dp)
-            .background(PanelBg),
+        modifier = Modifier.fillMaxWidth().height(64.dp).background(PanelBg),
     ) {
         LiveTabItem(
             text = "Chat",
@@ -332,9 +245,7 @@ private fun LiveTabItem(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .clickable(onClick = onClick),
+        modifier = modifier.fillMaxHeight().clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom,
     ) {
@@ -346,9 +257,7 @@ private fun LiveTabItem(
         )
         Spacer(modifier = Modifier.height(12.dp))
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
+            modifier = Modifier.fillMaxWidth().height(3.dp)
                 .background(if (selected) LivePink else Color.Transparent),
         )
     }
@@ -359,9 +268,7 @@ private fun LiveTabItem(
 private fun LiveParticipantsPanel(participants: List<LiveParticipantUi>) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 20.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(28.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -376,10 +283,7 @@ private fun ParticipantItem(participant: LiveParticipantUi) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box {
             Box(
-                modifier = Modifier
-                    .size(82.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFEFEFEF))
+                modifier = Modifier.size(82.dp).clip(CircleShape).background(Color(0xFFEFEFEF))
                     .then(
                         if (participant.isTeacher) Modifier.border(4.dp, LivePink, CircleShape)
                         else Modifier
@@ -391,10 +295,7 @@ private fun ParticipantItem(participant: LiveParticipantUi) {
             // Mute badge (bottom right corner)
             if (participant.isMuted) {
                 Box(
-                    modifier = Modifier
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(MutedBadge)
+                    modifier = Modifier.size(34.dp).clip(CircleShape).background(MutedBadge)
                         .align(Alignment.BottomEnd),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -421,9 +322,7 @@ private fun ParticipantItem(participant: LiveParticipantUi) {
 @Composable
 private fun LiveChatPanel(messages: List<LiveChatMessageUi>) {
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         items(messages) { message ->
@@ -435,18 +334,12 @@ private fun LiveChatPanel(messages: List<LiveChatMessageUi>) {
 @Composable
 private fun LiveChatMessageBubble(message: LiveChatMessageUi) {
     Row(
-        modifier = Modifier
-            .wrapContentWidth()
-            .clip(RoundedCornerShape(22.dp))
-            .background(Color(0xFF444444))
-            .padding(horizontal = 14.dp, vertical = 10.dp),
+        modifier = Modifier.wrapContentWidth().clip(RoundedCornerShape(22.dp))
+            .background(Color(0xFF444444)).padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape)
-                .background(Color.LightGray),
+            modifier = Modifier.size(32.dp).clip(CircleShape).background(Color.LightGray),
             contentAlignment = Alignment.Center,
         ) {
             Text(text = "👤", fontSize = 16.sp)
@@ -476,10 +369,7 @@ private fun LiveBottomBar(
     onSend: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.Black)
-            .navigationBarsPadding()
+        modifier = Modifier.fillMaxWidth().background(Color.Black).navigationBarsPadding()
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -498,10 +388,7 @@ private fun LiveBottomBar(
                 value = inputText,
                 onValueChange = onInputTextChange,
                 placeholder = { Text(text = "輸入...", color = Color(0xFFAAAAAA)) },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(52.dp)
-                    .clip(RoundedCornerShape(26.dp)),
+                modifier = Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(26.dp)),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = ControlBg,
@@ -542,10 +429,7 @@ private fun CircleIconButton(
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .size(52.dp)
-            .clip(CircleShape)
-            .background(backgroundColor)
+        modifier = Modifier.size(52.dp).clip(CircleShape).background(backgroundColor)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
         content = content,

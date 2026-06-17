@@ -9,15 +9,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
-actual fun LiveRtcVideoView(
+actual fun LiveRtcClassroomView(
     modifier: Modifier,
     session: LiveRtcSession,
-    showLocalPreview: Boolean,
+    screenUid: Int,
+    cameraUid: Int,
+    showCamera: Boolean,
+    speakerEnabled: Boolean,
 ) {
     Box(
         modifier = modifier.background(Color.Black),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text = "iOS RTC placeholder", color = Color.White)
+        Text(text = "iOS RTC classroom placeholder", color = Color.White)
     }
 }
