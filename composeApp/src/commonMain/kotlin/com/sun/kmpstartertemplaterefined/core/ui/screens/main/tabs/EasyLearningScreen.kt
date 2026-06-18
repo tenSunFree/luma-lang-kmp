@@ -5,11 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,11 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sun.kmpstartertemplaterefined.core.ui.screens.main.components.MainTopBar  // ← 新增
 import com.sun.kmpstartertemplaterefined.feature_navigation.StarterNavigator
 import com.sun.kmpstartertemplaterefined.feature_navigation.screens.StarterScreens
 
 private val Pink = Color(0xFFFF3F68)
-private val TextDark = Color(0xFF4A4A4A)
 private val BorderGray = Color(0xFFE5E5E5)
 private val TabUnselected = Color(0xFFC5C5C5)
 
@@ -33,11 +29,12 @@ fun EasyLearningScreen() {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("直播室", "FunTV", "影片", "音樂", "童話", "專欄", "大補帖")
     Column(modifier = Modifier.fillMaxSize()) {
-        TopBar()
+        MainTopBar()
         TabRow(
             tabs = tabs,
             selectedIndex = selectedTabIndex,
-            onTabSelected = { selectedTabIndex = it })
+            onTabSelected = { selectedTabIndex = it },
+        )
         when (selectedTabIndex) {
             0 -> LiveStreamingTab(
                 onOpenLiveRoom = { course ->
@@ -59,47 +56,6 @@ fun EasyLearningScreen() {
             4 -> StoryTab()
             5 -> ColumnTab()
             6 -> StudyPackTab()
-        }
-    }
-}
-
-@Composable
-private fun TopBar() {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = "LumaLang",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = TextDark,
-            modifier = Modifier.weight(1f),
-        )
-        Icon(
-            imageVector = Icons.Filled.GridView,
-            contentDescription = "課表",
-            tint = Color(0xFF555555),
-            modifier = Modifier.size(26.dp),
-        )
-        Spacer(modifier = Modifier.width(20.dp))
-        Box(
-            modifier = Modifier.size(32.dp).clip(CircleShape).background(Color(0xFFFFA2B9)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text("🤖", fontSize = 16.sp)
-        }
-        Spacer(modifier = Modifier.width(20.dp))
-        Box(
-            modifier = Modifier.size(32.dp).clip(CircleShape).background(Color(0xFF1E9BEF)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Headphones,
-                contentDescription = "耳機",
-                tint = Color.White,
-                modifier = Modifier.size(20.dp),
-            )
         }
     }
 }
