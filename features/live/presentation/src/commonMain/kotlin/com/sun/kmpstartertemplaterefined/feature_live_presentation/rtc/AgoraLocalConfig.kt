@@ -1,4 +1,4 @@
-package com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc
+package com.sun.kmpstartertemplaterefined.feature_live_presentation.rtc
 
 expect object AgoraLocalConfig {
     val appId: String

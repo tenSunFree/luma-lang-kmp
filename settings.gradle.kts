@@ -1,4 +1,4 @@
-rootProject.name = "KmpStarterTemplateRefined"
+rootProject.name = "luma-lang-kmp"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -66,3 +66,5 @@ include(":features:auth:presentation")
 include(":features:lessons:domain")
 include(":features:lessons:data")
 include(":features:lessons:presentation")
+/*Feature: Live*/
+include(":features:live:presentation")

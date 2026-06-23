@@ -1,5 +1,6 @@
 package com.sun.kmpstartertemplaterefined.core.ui.screens.main.tabs
 
+import LiveCourseUi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,18 +25,6 @@ private val Pink = Color(0xFFFF3F68)
 private val TextDark = Color(0xFF4A4A4A)
 private val TextGray = Color(0xFF777777)
 private val BorderGray = Color(0xFFE5E5E5)
-
-data class LiveCourseUi(
-    val id: String,
-    val roomId: String,
-    val teacherName: String,
-    val title: String,
-    val category: String,
-    val level: String,
-    val isRequired: Boolean,
-    val scheduledTime: String,
-    val emoji: String,
-)
 
 val fakeLiveCourses = listOf(
     LiveCourseUi(

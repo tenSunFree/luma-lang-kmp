@@ -1,9 +1,9 @@
 package com.sun.kmpstartertemplaterefined.navigation
 
-import com.sun.kmpstartertemplaterefined.core.ui.screens.live.LiveRoomScreen
+import LiveCourseUi
+import com.sun.kmpstartertemplaterefined.feature_live_presentation.LiveRoomScreen
 import com.sun.kmpstartertemplaterefined.feature_auth_presentation.screens.LoginScreen
 import com.sun.kmpstartertemplaterefined.core.ui.screens.main.MainScreen
-import com.sun.kmpstartertemplaterefined.core.ui.screens.main.tabs.LiveCourseUi
 import com.sun.kmpstartertemplaterefined.core.ui.screens.welcome.WelcomeScreen
 import com.sun.kmpstartertemplaterefined.feature_core_presentation.screens.OnboardingV1Screen
 import com.sun.kmpstartertemplaterefined.feature_core_presentation.screens.SplashScreen

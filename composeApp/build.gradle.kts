@@ -13,38 +13,6 @@ plugins {
     id(libs.plugins.build.koin.compose.get().pluginId)
 }
 
-val generatedAgoraConfigDir =
-    layout.buildDirectory.dir("generated/agoraConfig/androidMain/kotlin")
-
-val generateAgoraLocalConfig by tasks.registering {
-    val localPropertiesFile = rootProject.file("local.properties")
-    inputs.file(localPropertiesFile).optional()
-    outputs.dir(generatedAgoraConfigDir)
-    doLast {
-        val props = Properties()
-        if (localPropertiesFile.exists()) {
-            localPropertiesFile.inputStream().use { props.load(it) }
-        }
-        fun String.esc() = replace("\\", "\\\\").replace("\"", "\\\"")
-        val appId = props.getProperty("AGORA_APP_ID", "").esc()
-        val token = props.getProperty("AGORA_TOKEN", "").esc()
-        val outputDir = generatedAgoraConfigDir.get().asFile.resolve(
-            "com/sun/kmpstartertemplaterefined/core/ui/screens/live/rtc"
-        )
-        outputDir.mkdirs()
-        outputDir.resolve("AgoraLocalConfig.android.kt").writeText(
-            """
-            package com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc
-
-            actual object AgoraLocalConfig {
-                actual val appId: String = "$appId"
-                actual val token: String = "$token"
-            }
-            """.trimIndent()
-        )
-    }
-}
-
 compose.resources {
     generateResClass = never
 }
@@ -66,8 +34,7 @@ kotlin {
         }
     }
     listOf(
-        iosArm64(),
-        iosSimulatorArm64()
+        iosArm64(), iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
@@ -77,12 +44,7 @@ kotlin {
         }
     }
     sourceSets {
-        androidMain {
-            kotlin.srcDir(generatedAgoraConfigDir)
-            dependencies {
-                implementation("io.agora.rtc:full-rtc-basic:4.6.3")
-            }
-        }
+        androidMain.dependencies {}
         commonMain.dependencies {
             // local modules
             api(projects.starter.core)
@@ -127,6 +89,8 @@ kotlin {
             implementation(projects.features.lessons.data)
             implementation(projects.features.lessons.domain)
             implementation(projects.features.lessons.presentation)
+            // Feature Live
+            implementation(projects.features.live.presentation)
         }
         iosMain.dependencies {
 
@@ -170,9 +134,3 @@ val setXcodeTargetVersion by tasks.registering {
 //tasks.named("embedAndSignAppleFrameworkForXcode") {
 //    dependsOn(setXcodeTargetVersion)
 //}
-
-afterEvaluate {
-    tasks.named("compileAndroidMain") {
-        dependsOn(generateAgoraLocalConfig)
-    }
-}

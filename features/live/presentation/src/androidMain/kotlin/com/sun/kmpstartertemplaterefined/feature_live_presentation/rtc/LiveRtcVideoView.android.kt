@@ -1,7 +1,9 @@
-package com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc
+package com.sun.kmpstartertemplaterefined.feature_live_presentation.rtc
 
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.SurfaceView
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
@@ -55,14 +57,14 @@ actual fun LiveRtcClassroomView(
             mEventHandler = object : IRtcEngineEventHandler() {
                 // Successfully joined the channel
                 override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
-                    android.util.Log.d(
+                    Log.d(
                         "AgoraRTC[classroom]", "加入頻道成功 channel=$channel localUid=$uid"
                     )
                 }
 
                 // Triggered when the App enters the channel later than the teacher's app.
                 override fun onUserJoined(uid: Int, elapsed: Int) {
-                    android.util.Log.d("AgoraRTC[classroom]", "遠端用戶加入 uid=$uid")
+                    Log.d("AgoraRTC[classroom]", "遠端用戶加入 uid=$uid")
                     val engine = RtcEngineHolder.engine ?: return
                     when (uid) {
                         screenUid -> setupRemoteView(
@@ -95,7 +97,7 @@ actual fun LiveRtcClassroomView(
                 override fun onRemoteVideoStateChanged(
                     uid: Int, state: Int, reason: Int, elapsed: Int
                 ) {
-                    android.util.Log.d(
+                    Log.d(
                         "AgoraRTC[classroom]", "遠端視訊狀態 uid=$uid state=$state reason=$reason"
                     )
                     val engine = RtcEngineHolder.engine ?: return
@@ -120,7 +122,7 @@ actual fun LiveRtcClassroomView(
                                 // reason=1(NETWORK) Most common, will automatically return to DECODING after 1~2 seconds.
                                 // If forceRecreate is used here, rebuilding the SurfaceView will trigger a new
                                 // FROZEN, causing a "black→bright→black" loop every second.
-                                android.util.Log.w(
+                                Log.w(
                                     "AgoraRTC[classroom]",
                                     "screen FROZEN uid=$uid reason=$reason → 等 Agora 自動恢復，不重建"
                                 )
@@ -129,7 +131,7 @@ actual fun LiveRtcClassroomView(
 
                             Constants.REMOTE_VIDEO_STATE_FAILED -> {
                                 // Only when it's truly dead does it require a forced rebuild.
-                                android.util.Log.e(
+                                Log.e(
                                     "AgoraRTC[classroom]",
                                     "screen FAILED uid=$uid reason=$reason → force rebind"
                                 )
@@ -167,7 +169,7 @@ actual fun LiveRtcClassroomView(
                 override fun onFirstRemoteVideoFrame(
                     uid: Int, width: Int, height: Int, elapsed: Int
                 ) {
-                    android.util.Log.d(
+                    Log.d(
                         "AgoraRTC[classroom]", "first remote frame uid=$uid ${width}x${height}"
                     )
                     val engine = RtcEngineHolder.engine ?: return
@@ -198,7 +200,7 @@ actual fun LiveRtcClassroomView(
 
                 // User offline: Clear the tag so that it can be correctly rebuilt on the next reconnection.
                 override fun onUserOffline(uid: Int, reason: Int) {
-                    android.util.Log.d(
+                    Log.d(
                         "AgoraRTC[classroom]", "用戶離線 uid=$uid reason=$reason"
                     )
                     mainHandler.post {
@@ -217,13 +219,13 @@ actual fun LiveRtcClassroomView(
                 }
 
                 override fun onError(err: Int) {
-                    android.util.Log.e("AgoraRTC[classroom]", "錯誤碼 err=$err")
+                    Log.e("AgoraRTC[classroom]", "錯誤碼 err=$err")
                 }
             }
         }
         RtcEngine.create(config).also { engine ->
             RtcEngineHolder.engine = engine
-            android.util.Log.d("AgoraRTC[classroom]", "RtcEngine created")
+            Log.d("AgoraRTC[classroom]", "RtcEngine created")
         }
     }
     // UI layer: main screen + small window in the upper right corner
@@ -275,7 +277,7 @@ actual fun LiveRtcClassroomView(
             session.uid,
             options,
         )
-        android.util.Log.d(
+        Log.d(
             "AgoraRTC[classroom]",
             "joinChannel result=$result (0=成功) channel=${session.channelName} uid=${session.uid}"
         )
@@ -290,7 +292,7 @@ actual fun LiveRtcClassroomView(
             rtcEngine.leaveChannel()
             RtcEngine.destroy()
             RtcEngineHolder.engine = null
-            android.util.Log.d("AgoraRTC[classroom]", "engine destroyed")
+            Log.d("AgoraRTC[classroom]", "engine destroyed")
         }
     }
     // The horn switch takes effect immediately
@@ -310,7 +312,7 @@ actual fun LiveRtcClassroomView(
 private fun setupRemoteView(
     uid: Int,
     container: FrameLayout,
-    context: android.content.Context,
+    context: Context,
     engine: RtcEngine,
     overlay: Boolean,
     label: String,
@@ -322,13 +324,13 @@ private fun setupRemoteView(
         val surfaceView: SurfaceView =
             if (!forceRecreate && existing?.uid == uid && existing.surfaceView.parent == container) {
                 // Reuse existing SurfaceView without cutting or rebuilding it.
-                android.util.Log.d(
+                Log.d(
                     "AgoraRTC[classroom]", "reuse SurfaceView label=$label uid=$uid"
                 )
                 existing.surfaceView
             } else {
                 // Initial creation / forceRecreate / uid change
-                android.util.Log.d(
+                Log.d(
                     "AgoraRTC[classroom]",
                     "create SurfaceView label=$label uid=$uid force=$forceRecreate"
                 )

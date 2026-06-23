@@ -1,4 +1,4 @@
-package com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc
+package com.sun.kmpstartertemplaterefined.feature_live_presentation.rtc
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

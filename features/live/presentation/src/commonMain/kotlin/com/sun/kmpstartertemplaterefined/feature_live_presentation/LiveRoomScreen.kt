@@ -1,5 +1,6 @@
-package com.sun.kmpstartertemplaterefined.core.ui.screens.live
+package com.sun.kmpstartertemplaterefined.feature_live_presentation
 
+import LiveCourseUi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,10 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc.AgoraLocalConfig
-import com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc.LiveRtcClassroomView
-import com.sun.kmpstartertemplaterefined.core.ui.screens.live.rtc.LiveRtcSession
-import com.sun.kmpstartertemplaterefined.core.ui.screens.main.tabs.LiveCourseUi
+import com.sun.kmpstartertemplaterefined.feature_live_presentation.rtc.AgoraLocalConfig
+import com.sun.kmpstartertemplaterefined.feature_live_presentation.rtc.LiveRtcClassroomView
+import com.sun.kmpstartertemplaterefined.feature_live_presentation.rtc.LiveRtcSession
 import com.sun.kmpstartertemplaterefined.utils.logging.Log
 
 private val LivePink = Color(0xFFFF3F68)
