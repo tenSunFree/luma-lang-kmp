@@ -1,5 +1,6 @@
 package com.sun.kmpstartertemplaterefined.androidapp
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -45,6 +46,7 @@ object LivePipNotificationManager {
     @Volatile
     private var isShowing = false
 
+    @SuppressLint("MissingPermission")
     fun show(context: Context, courseTitle: String, isMuted: Boolean) {
         // ...existing code...
         if (!hasNotificationPermission(context)) {
@@ -103,17 +105,16 @@ object LivePipNotificationManager {
             buildBringToFrontIntent(context),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-
-        val toggleMuteIntent = Intent(context, LivePipNotificationActionReceiver::class.java).apply {
-            action = LivePipNotificationActionReceiver.ACTION_TOGGLE_MUTE
-        }
+        val toggleMuteIntent =
+            Intent(context, LivePipNotificationActionReceiver::class.java).apply {
+                action = LivePipNotificationActionReceiver.ACTION_TOGGLE_MUTE
+            }
         val toggleMutePendingIntent = PendingIntent.getBroadcast(
             context,
             REQUEST_CODE_TOGGLE_MUTE,
             toggleMuteIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-
         val stopIntent = Intent(context, LivePipNotificationActionReceiver::class.java).apply {
             action = LivePipNotificationActionReceiver.ACTION_STOP
         }
@@ -123,15 +124,12 @@ object LivePipNotificationManager {
             stopIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-
-        // ...existing code...
         val muteActionLabel = if (isMuted) "取消靜音" else "靜音"
         val muteActionIcon = if (isMuted) {
             android.R.drawable.ic_lock_silent_mode_off
         } else {
             android.R.drawable.ic_lock_silent_mode
         }
-
         return NotificationCompat.Builder(context, LiveNotificationChannel.CHANNEL_ID_PIP_CONTROLS)
             .setSmallIcon(android.R.drawable.ic_menu_view) // Recommended to replace with androidApp/res/drawable/ic_notification.xml
             // ...existing code...

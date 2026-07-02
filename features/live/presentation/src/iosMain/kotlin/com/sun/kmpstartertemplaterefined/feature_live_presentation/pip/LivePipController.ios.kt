@@ -3,26 +3,30 @@ package com.sun.kmpstartertemplaterefined.feature_live_presentation.pip
 import androidx.compose.runtime.Composable
 
 /**
- * iOS does not have a corresponding "System PiP Notification" concept—iOS's picture-in-picture functionality is AVKit-level.
- * The system UI already provides back/control gestures; apps do not need, and should not, add additional gestures.
- * One notification. All methods are no-op to ensure that commonMain calls do not encounter errors.
+ * iOS no-op implementation.
+ *
+ * The current project uses Agora's own rendering for the live room, and there is no
+ * corresponding system-level PiP integration on iOS wired up yet (AVKit-based PiP would
+ * require a different rendering pipeline). All methods are no-op so that commonMain calls
+ * (LiveRoomScreen) do not encounter errors when compiled for iOS.
  */
-actual object LivePipNotificationController {
-    actual fun registerActions(
-        onToggleMuteRequested: () -> Unit,
-        onStopRequested: () -> Unit,
-    ) {
+actual object LivePipController {
+    actual fun setLiveRoomActive(active: Boolean) {
         // iOS no-op
     }
 
-    actual fun unregisterActions() {
+    actual fun setVideoPlaying(playing: Boolean) {
         // iOS no-op
     }
 
-    actual fun reportMuteState(muted: Boolean) {
+    actual fun setAspectRatio(width: Int, height: Int) {
+        // iOS no-op
+    }
+
+    actual fun setCourseTitle(title: String) {
         // iOS no-op
     }
 }
 
 @Composable
-actual fun rememberPipNotificationPermissionGranted(): Boolean = true
+actual fun isInPipMode(): Boolean = false

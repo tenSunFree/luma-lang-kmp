@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresApi
 
 /**
  * Centralized management for live-related notification channels.
@@ -53,6 +54,7 @@ object LiveNotificationChannel {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun ensureChannel(
         manager: NotificationManager,
         channelId: String,
