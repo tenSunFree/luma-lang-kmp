@@ -79,7 +79,7 @@ kotlin {
         androidMain {
             kotlin.srcDir(generatedAgoraConfigDir)
             dependencies {
-                implementation("io.agora.rtc:full-rtc-basic:4.6.3")
+                api("io.agora.rtc:full-rtc-basic:4.6.3")
             }
         }
 

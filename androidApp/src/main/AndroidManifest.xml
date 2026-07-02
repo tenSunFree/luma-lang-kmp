@@ -8,6 +8,27 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
+    <!-- Starting from Android 9 (API 28), this permission is required to start a foreground service. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <!--
+    Starting from Android 14 (API 34), foreground services must declare their own "type",
+    and each type corresponds to a separate permission. We do live audio background playback,
+    which maps to the mediaPlayback type.
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
+    <!--
+     Starting from Android 13 (API 33), showing any notification (including foreground service notifications)
+     requires the user's POST_NOTIFICATIONS runtime permission.
+     Remember to request this permission from the Compose layer using rememberLauncherForActivityResult,
+     otherwise the foreground service can still start, but the notification will not appear, which makes the
+     experience confusing
+     (Android 8-12 do not have this restriction, but on 13+ notifications are swallowed if the permission is
+     not granted).
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <!-- Inform Google Play that a camera is not a prerequisite for installation. -->
     <uses-feature
         android:name="android.hardware.camera"
@@ -25,13 +46,30 @@
 
         <activity
             android:name=".MainActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:enableOnBackInvokedCallback="true"
             android:exported="true"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
             tools:targetApi="33">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".LiveBackgroundAudioService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <!--
+        Receives broadcasts for the PiP floating notification's "mute/unmute" and "stop playback" buttons.
+        exported="false": only used by PendingIntent created inside this app,
+        not exposed for other apps to trigger.
+        -->
+        <receiver
+            android:name=".LivePipNotificationActionReceiver"
+            android:exported="false" />
     </application>
 </manifest>

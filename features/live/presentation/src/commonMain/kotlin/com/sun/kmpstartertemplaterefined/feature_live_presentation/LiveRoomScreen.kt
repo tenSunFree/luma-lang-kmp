@@ -3,6 +3,10 @@ package com.sun.kmpstartertemplaterefined.feature_live_presentation
 import LiveCourseUi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.runtime.DisposableEffect
+import com.sun.kmpstartertemplaterefined.feature_live_presentation.pip.LivePipController
+import com.sun.kmpstartertemplaterefined.feature_live_presentation.pip.LivePipNotificationController
+import com.sun.kmpstartertemplaterefined.feature_live_presentation.pip.isInPipMode
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -72,53 +76,129 @@ private val mockChatMessages = listOf(
     LiveChatMessageUi(id = "2", userName = "Jack", message = "has joined the stream"),
 )
 
+/**
+ * Single call-site principle
+ *
+ * LiveVideoArea appears only once in the codebase (the same call site).
+ * Whether or not we are in PiP only changes the appearance through parameters
+ * (modifier size and whether other UI is shown), rather than switching the whole
+ * Composable branch. This keeps remember state, the RtcEngine, and the FrameLayout
+ * all as the same instance, so the view tree is not torn down and rebuilt when PiP changes.
+ */
 @Composable
 fun LiveRoomScreen(
     course: LiveCourseUi,
     onBack: () -> Unit,
 ) {
-    var selectedTab by remember { mutableStateOf(LiveRoomTab.Participants) } // 截圖預設 Participants
+    var selectedTab by remember { mutableStateOf(LiveRoomTab.Participants) } // Default to Participants for screenshots
     var showTeacherVideo by remember { mutableStateOf(true) }
     var speakerEnabled by remember { mutableStateOf(true) }
     var inputText by remember { mutableStateOf("") }
-    Column(
-        modifier = Modifier.fillMaxSize().background(LiveBg).systemBarsPadding(),
-    ) {
-        // Header: Back + FUNDAY + Eye + Speaker
-        LiveRoomHeader(
-            showTeacherVideo = showTeacherVideo,
-            speakerEnabled = speakerEnabled,
-            onBack = onBack,
-            onToggleTeacherVideo = { showTeacherVideo = !showTeacherVideo },
-            onToggleSpeaker = { speakerEnabled = !speakerEnabled },
+    // Notification permission handling has already been moved to MainActivity
+    // (via Activity-level registerForActivityResult, triggered by
+    // AndroidLivePipState.onStateChanged). This screen no longer calls
+    // rememberPipNotificationPermissionGranted() or any ActivityResultLauncher-related API.
+    //
+    // Why: this screen is mounted through Navigation3's SceneSetupNavEntryDecorator
+    // (implemented internally with movableContentOf). In this path, the CompositionLocal
+    // inheritance chain (including the LocalActivityResultRegistryOwner dependency used by
+    // rememberLauncherForActivityResult) is unreliable and previously caused an
+    // IllegalStateException crash. Moving the permission request to the Activity level
+    // completely avoids this problem; see MainActivity.ensureNotificationPermission().
+    //
+    // When entering this screen, inform the platform that we are in the live room so
+    // system PiP is allowed. When leaving the screen, clear the state to avoid the user
+    // being mistakenly treated as entering PiP after leaving the live room.
+    DisposableEffect(Unit) {
+        LivePipController.setLiveRoomActive(true)
+        LivePipController.setCourseTitle(course.title)
+        onDispose {
+            LivePipController.setLiveRoomActive(false)
+            LivePipController.setVideoPlaying(false)
+        }
+    }
+    // Register the actual behavior for the PiP notification's "mute/unmute" and "stop playback" buttons.
+    // - Mute/unmute: directly flip the current speakerEnabled state. The subsequent
+    //   LaunchedEffect(speakerEnabled) (inside LiveRtcClassroomView)
+    //   will automatically handle Agora's muteAllRemoteAudioStreams.
+    // - Stop playback: equivalent to the user pressing Back to leave the live room.
+    //   It reuses the same onBack logic, which will naturally trigger the onDispose
+    //   in the DisposableEffect above and the leaveChannel/destroy cleanup inside
+    //   LiveRtcClassroomView.
+    DisposableEffect(Unit) {
+        LivePipNotificationController.registerActions(
+            onToggleMuteRequested = { speakerEnabled = !speakerEnabled },
+            onStopRequested = onBack,
         )
-        // Live Stream View Area
+        onDispose {
+            LivePipNotificationController.unregisterActions()
+        }
+    }
+    // Report the current mute state (muted = !speakerEnabled) to the notification controller
+    // every time speakerEnabled changes, so the text on the button in the currently displayed
+    // notification stays in sync with the real state—whether the change came from the in-app
+    // UI or from the notification button itself.
+    LaunchedEffect(speakerEnabled) {
+        LivePipNotificationController.reportMuteState(!speakerEnabled)
+    }
+    // Whether the app is currently in system PiP mode (Android only; iOS is always false).
+    val inPip = isInPipMode()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(LiveBg)
+            .then(if (inPip) Modifier else Modifier.systemBarsPadding()),
+    ) {
+        // Because the PiP window is very small, hide the Header, chat, and control bar and keep only the video.
+        // Wrapping these display-only sections in if is safe—they are unrelated to video rendering, and being
+        // disposed/recreated will not affect the Agora engine or video continuity.
+        // The only part that must not be affected by an if-return is the LiveVideoArea below.
+        if (!inPip) {
+            LiveRoomHeader(
+                showTeacherVideo = showTeacherVideo,
+                speakerEnabled = speakerEnabled,
+                onBack = onBack,
+                onToggleTeacherVideo = { showTeacherVideo = !showTeacherVideo },
+                onToggleSpeaker = { speakerEnabled = !speakerEnabled },
+            )
+        }
+        // Live Stream View Area — there is only this one call site for the entire screen.
+        // In PiP mode: fill the entire PiP window and forcibly hide the teacher camera inset.
+        // (The PiP space is too small, and stacking two SurfaceViews can easily cause Z-order/
+        // black-screen issues; we also adopted the point mentioned in the analysis.)
         LiveVideoArea(
             course = course,
-            showTeacherVideo = showTeacherVideo,
+            showTeacherVideo = if (inPip) false else showTeacherVideo,
             speakerEnabled = speakerEnabled,
+            modifier = if (inPip) {
+                Modifier.fillMaxSize()
+            } else {
+                Modifier.fillMaxWidth().height(240.dp)
+            },
         )
-        // Chat / Participants Tab column
-        LiveRoomTabs(
-            selectedTab = selectedTab,
-            onTabSelected = { selectedTab = it },
-        )
-        // Content Panel
-        Box(
-            modifier = Modifier.weight(1f).fillMaxWidth().background(PanelBg),
-        ) {
-            when (selectedTab) {
-                LiveRoomTab.Chat -> LiveChatPanel(messages = mockChatMessages)
-                LiveRoomTab.Participants -> LiveParticipantsPanel(participants = mockParticipants)
+        if (!inPip) {
+            // Chat / Participants Tab column
+            LiveRoomTabs(
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it },
+            )
+            // Content Panel
+            Box(
+                modifier = Modifier.weight(1f).fillMaxWidth().background(PanelBg),
+            ) {
+                when (selectedTab) {
+                    LiveRoomTab.Chat -> LiveChatPanel(messages = mockChatMessages)
+                    LiveRoomTab.Participants -> LiveParticipantsPanel(participants = mockParticipants)
+                }
             }
+            // Bottom Operation Column
+            LiveBottomBar(
+                selectedTab = selectedTab,
+                inputText = inputText,
+                onInputTextChange = { inputText = it },
+                onSend = { inputText = "" },
+            )
         }
-        // Bottom Operation Column
-        LiveBottomBar(
-            selectedTab = selectedTab,
-            inputText = inputText,
-            onInputTextChange = { inputText = it },
-            onSend = { inputText = "" },
-        )
     }
 }
 
@@ -190,6 +270,7 @@ private fun LiveVideoArea(
     course: LiveCourseUi,
     showTeacherVideo: Boolean,
     speakerEnabled: Boolean,
+    modifier: Modifier = Modifier.fillMaxWidth().height(240.dp),
 ) {
     val session = remember(course.roomId) {
         LiveRtcSession(
@@ -203,8 +284,13 @@ private fun LiveVideoArea(
         "LiveRoomScreen", "channel=${session.channelName}, appIdBlank=${session.appId.isBlank()}"
     )
     // Single Composable, single RTCEngine, dual-view
+    //
+    // This is the only LiveRtcClassroomView call site in the entire file. Whether or not we are in PiP,
+    // it is the same call site, and Compose treats it as the same node.
+    // The session/rtcEngine/screenContainer/cameraContainer all stay intact,
+    // and are not disposed and rebuilt when PiP changes.
     LiveRtcClassroomView(
-        modifier = Modifier.fillMaxWidth().height(240.dp).background(Color.Black),
+        modifier = modifier.background(Color.Black),
         session = session,
         screenUid = TEACHER_SCREEN_UID,   // 2000
         cameraUid = TEACHER_CAMERA_UID,   // 1000

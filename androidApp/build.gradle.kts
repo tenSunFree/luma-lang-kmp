@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.material)
 
     implementation(projects.composeApp)
+    implementation(projects.features.live.presentation)
     implementation(libs.accompanist.system.ui.controller)
 
     testImplementation(libs.junit)

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.doOnAttach
+import com.sun.kmpstartertemplaterefined.feature_live_presentation.pip.AndroidLivePipState
 import io.agora.rtc2.*
 import io.agora.rtc2.video.VideoCanvas
 
@@ -35,6 +37,21 @@ private data class RemoteViewBinding(
 // Changes AndroidView.update{} to post{} to avoid conflicts caused by synchronous requestLayout triggered during layout pass.
 // Performs a reuse bind onFirstRemoteVideoFrame to ensure the first frame is stable.
 // Clears container.tag onUserOffline to avoid misjudgments during subsequent reconnections.
+//
+// PIP / background-resume black screen fix
+// Added SurfaceHolder.Callback: when the Activity enters PIP or returns to the foreground from the background,
+// Android will destroy the old Surface and create a brand-new one (even if the SurfaceView Java object itself has
+// not been reclaimed). The Agora engine does not know that the underlying Surface has changed. If we do not
+// proactively call setupRemoteVideo() again to rebind it, the video can get stuck on a black screen even though
+// Agora keeps sending frames.
+// surfaceCreated is the callback the system guarantees to invoke when the "new Surface is actually ready",
+// which is more reliable than depending on Agora's onRemoteVideoStateChanged (FROZEN/FAILED), because a
+// background-resume scenario does not necessarily trigger a network-state event.
+//
+// We also added the AndroidLivePipState.onResumed callback: MainActivity.onResume()
+// actively notifies this code to force one more rebind, as an extra safeguard beyond surfaceCreated
+// (some devices/ROMs may differ from the standard timing when restoring from PIP).
+//
 // Main Composable:One engine, one join, two views
 @Composable
 actual fun LiveRtcClassroomView(
@@ -135,6 +152,9 @@ actual fun LiveRtcClassroomView(
                                     "AgoraRTC[classroom]",
                                     "screen FAILED uid=$uid reason=$reason → force rebind"
                                 )
+                                // The video is definitely interrupted, so report false to prevent the user from shrinking the window
+                                // and entering PiP only to see a black screen (canEnterPip() should block this case).
+                                AndroidLivePipState.setVideoPlaying(false)
                                 setupRemoteView(
                                     uid = uid,
                                     container = screenContainer,
@@ -145,6 +165,16 @@ actual fun LiveRtcClassroomView(
                                     renderMode = VideoCanvas.RENDER_MODE_FIT,
                                     forceRecreate = true,
                                 )
+                            }
+
+                            Constants.REMOTE_VIDEO_STATE_STOPPED -> {
+                                // The teacher manually turned off screen sharing/camera (not an abnormal disconnect);
+                                // treat this as "there is currently no real video content" to avoid canEnterPip() misjudging.
+                                Log.d(
+                                    "AgoraRTC[classroom]",
+                                    "screen STOPPED uid=$uid reason=$reason"
+                                )
+                                AndroidLivePipState.setVideoPlaying(false)
                             }
                         }
 
@@ -174,16 +204,20 @@ actual fun LiveRtcClassroomView(
                     )
                     val engine = RtcEngineHolder.engine ?: return
                     when (uid) {
-                        screenUid -> setupRemoteView(
-                            uid = uid,
-                            container = screenContainer,
-                            context = context,
-                            engine = engine,
-                            overlay = false,
-                            label = "screen-first-frame",
-                            renderMode = VideoCanvas.RENDER_MODE_FIT,
-                            forceRecreate = false,  // reuse, do not rebuild
-                        )
+                        screenUid -> {
+                            AndroidLivePipState.setAspectRatio(width, height)
+                            AndroidLivePipState.setVideoPlaying(true)
+                            setupRemoteView(
+                                uid = uid,
+                                container = screenContainer,
+                                context = context,
+                                engine = engine,
+                                overlay = false,
+                                label = "screen",
+                                renderMode = VideoCanvas.RENDER_MODE_FIT,
+                                forceRecreate = false,
+                            )
+                        }
 
                         cameraUid -> setupRemoteView(
                             uid = uid,
@@ -191,14 +225,13 @@ actual fun LiveRtcClassroomView(
                             context = context,
                             engine = engine,
                             overlay = true,
-                            label = "camera-first-frame",
+                            label = "camera",
                             renderMode = VideoCanvas.RENDER_MODE_HIDDEN,
                             forceRecreate = false,
                         )
                     }
                 }
 
-                // User offline: Clear the tag so that it can be correctly rebuilt on the next reconnection.
                 override fun onUserOffline(uid: Int, reason: Int) {
                     Log.d(
                         "AgoraRTC[classroom]", "用戶離線 uid=$uid reason=$reason"
@@ -208,6 +241,10 @@ actual fun LiveRtcClassroomView(
                             screenUid -> {
                                 screenContainer.removeAllViews()
                                 screenContainer.tag = null  // Clear old bindings
+                                // When the teacher's video goes offline, there is no real video content anymore.
+                                // We must report false; otherwise canEnterPip() will incorrectly think
+                                // it is still playing, and the user will only see a black screen after shrinking it.
+                                AndroidLivePipState.setVideoPlaying(false)
                             }
 
                             cameraUid -> {
@@ -231,8 +268,8 @@ actual fun LiveRtcClassroomView(
     // UI layer: main screen + small window in the upper right corner
     Box(modifier = modifier) {
         // Main screen: Teacher's screen sharing (uid=2000)
-        // Update{} is replaced with post{} to avoid conflicts
-        // or blackouts caused by triggering synchronous requestLayout during Compose layout pass.
+        // update{} is replaced with post{} to avoid conflicts
+        // or black screens caused by triggering synchronous requestLayout during the Compose layout pass.
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { screenContainer },
@@ -259,7 +296,7 @@ actual fun LiveRtcClassroomView(
             )
         }
     }
-    // Join Channel / Leave Channel
+    // Join channel / leave channel
     DisposableEffect(session.channelName) {
         rtcEngine.enableVideo()
         rtcEngine.setDefaultAudioRoutetoSpeakerphone(true)
@@ -292,13 +329,56 @@ actual fun LiveRtcClassroomView(
             rtcEngine.leaveChannel()
             RtcEngine.destroy()
             RtcEngineHolder.engine = null
+            AndroidLivePipState.setVideoPlaying(false)
             Log.d("AgoraRTC[classroom]", "engine destroyed")
         }
     }
-    // The horn switch takes effect immediately
+    // The speaker switch takes effect immediately
     LaunchedEffect(speakerEnabled) {
         rtcEngine.muteAllRemoteAudioStreams(!speakerEnabled)
         rtcEngine.adjustPlaybackSignalVolume(if (speakerEnabled) 100 else 0)
+    }
+
+    // === Fix point: proactively force a rebind when the app returns from PIP/background to the foreground ===
+    // MainActivity.onResume() calls AndroidLivePipState.notifyResumed(),
+    // and this block receives that signal to perform one forceRecreate=true
+    // rebind for both the screen and camera containers, ensuring the video can
+    // still recover even if surfaceCreated is not triggered because of device timing issues.
+    DisposableEffect(Unit) {
+        val onResumedCallback: () -> Unit = {
+            val engine = RtcEngineHolder.engine
+            if (engine != null) {
+                Log.d("AgoraRTC[classroom]", "onResumed → 強制重新綁定 screen/camera")
+                setupRemoteView(
+                    uid = screenUid,
+                    container = screenContainer,
+                    context = context,
+                    engine = engine,
+                    overlay = false,
+                    label = "screen",
+                    renderMode = VideoCanvas.RENDER_MODE_FIT,
+                    forceRecreate = true,
+                )
+                if (showCamera) {
+                    setupRemoteView(
+                        uid = cameraUid,
+                        container = cameraContainer,
+                        context = context,
+                        engine = engine,
+                        overlay = true,
+                        label = "camera",
+                        renderMode = VideoCanvas.RENDER_MODE_HIDDEN,
+                        forceRecreate = true,
+                    )
+                }
+            }
+        }
+        AndroidLivePipState.onResumed = onResumedCallback
+        onDispose {
+            if (AndroidLivePipState.onResumed === onResumedCallback) {
+                AndroidLivePipState.onResumed = null
+            }
+        }
     }
 }
 
@@ -309,6 +389,10 @@ actual fun LiveRtcClassroomView(
 // → Direct reuse, only rerun setupRemoteVideo() (rebinding Agora)
 // - Otherwise (first time / forceRecreate / uid changed) → Rebuild SurfaceView
 // Solves the problem of "every DECODING cancels rebuild → transitional black screen".
+//
+// When creating a new SurfaceView, attach a surfaceCreated listener: whenever the system recreates the underlying
+// Surface because of a PIP switch, returning from the background, or a display-size change, this code proactively
+// calls engine.setupRemoteVideo() again to tell Agora where to render the video, avoiding a stuck black screen.
 private fun setupRemoteView(
     uid: Int,
     container: FrameLayout,
@@ -337,7 +421,40 @@ private fun setupRemoteView(
                 container.removeAllViews()
                 val newSv = SurfaceView(context).apply {
                     setZOrderMediaOverlay(overlay)
+                    // OPAQUE: explicitly tell the system that this Surface is opaque, avoiding an extra composition layer
+                    // and an extra alpha blending pass on some devices. This saves a bit of rendering cost and makes
+                    // behavior more predictable (the default TRANSLUCENT has occasional flicker/ghosting reports when
+                    // two SurfaceViews are stacked).
+                    holder.setFormat(android.graphics.PixelFormat.OPAQUE)
+                    // Live-video apps do not want the screen to sleep automatically during playback, which could cause
+                    // the system to reclaim the Surface behind the SurfaceView (sleep itself does not necessarily
+                    // trigger surfaceDestroyed, but avoiding this variable is easier).
+                    keepScreenOn = true
                 }
+                // When the system recreates the Surface (PIP switch / returning from background / size change),
+                // proactively rebind to avoid Agora continuing to render to an already-destroyed old Surface.
+                newSv.holder.addCallback(object : SurfaceHolder.Callback {
+                    override fun surfaceCreated(holder: SurfaceHolder) {
+                        Log.d(
+                            "AgoraRTC[classroom]",
+                            "surfaceCreated label=$label uid=$uid → 重新綁定 Agora"
+                        )
+                        engine.setupRemoteVideo(VideoCanvas(newSv, renderMode, uid))
+                    }
+
+                    override fun surfaceChanged(
+                        holder: SurfaceHolder, format: Int, width: Int, height: Int
+                    ) {
+                        // no-op: let Agora handle scaling on its own when the size changes
+                    }
+
+                    override fun surfaceDestroyed(holder: SurfaceHolder) {
+                        Log.w(
+                            "AgoraRTC[classroom]", "surfaceDestroyed label=$label uid=$uid"
+                        )
+                        // Do not clear the tag proactively so the reuse logic can still hook back in on the next surfaceCreated.
+                    }
+                })
                 container.addView(
                     newSv,
                     FrameLayout.LayoutParams(
@@ -369,6 +486,11 @@ private fun setupRemoteView(
 }
 
 // Single engine owner
-internal object RtcEngineHolder {
+//
+// It used to be internal, but LiveBackgroundAudioService (located in the androidApp module)
+// needs to call muteLocalVideoStream/muteAllRemoteVideoStreams in the background to save bandwidth,
+// so it must be accessible from outside the module to the same engine instance and was changed to public.
+// If you do not plan to implement "foreground-service-only audio background playback," you can keep it internal.
+object RtcEngineHolder {
     var engine: RtcEngine? = null
 }
